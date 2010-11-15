@@ -177,7 +177,6 @@ class Whip {
         
     }   //  _plugin_load
     
-    
-    
+        
 }   //  class Whip
 
