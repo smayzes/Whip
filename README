@@ -1,15 +1,7 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title> Whip PHP framework README </title>
-</head>
-<body>
 
-    <h1>Whip : A non-restrictive PHP framework</h1>
-    <p>
-        Copyright (c) 2010 <a href="http://www.codefocus.ca/">Menno van Ens</a> and <a href="http://www.mayzes.org/">Shawn Mayzes</a>.
-    </p>
-    <pre>
+Whip : A non-restrictive PHP framework
+Copyright (c) 2010 Menno van Ens ( http://www.codefocus.ca/ ) and Shawn Mayzes ( http://www.mayzes.org/ ).
+
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -21,14 +13,8 @@
         GNU General Public License for more details.
 
         You should have received a copy of the GNU General Public License
-        along with this program.  If not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>.
-    </pre>
-    
-    <p>
-        For more information, check the project's official web site: <a href="http://www.whipframework.com/">http://www.whipframework.com/</a>.
-    </p>
-    
-    
+        along with this program.  If not, see http://www.gnu.org/licenses/
 
-</body>
-</html>
+
+For more information, check the project's official web site: http://www.whipframework.com/ .
+
