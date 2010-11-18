@@ -45,7 +45,7 @@ class Whip {
      */
     private static function _initialize() {
     //  Get Whip path, ending in slash
-        self::$_config['path'] = self::_real_path(__FILE__);
+        self::$_config['path'] = self::real_path(__DIR__);
     //  Include base classes for exception, model and plugin
         require_once(self::$_config['path'].'core/exception.php');
         require_once(self::$_config['path'].'core/model.php');
@@ -128,16 +128,24 @@ class Whip {
     
     
     /**
-     * _real_path function.
+     * real_path function.
      * 
      * @access private
      * @static
      * @param mixed $path
-     * @return void
+     * @return string
      */
-    private static function _real_path($path) {
-        $real_path = dirname(realpath($path));
-        if (substr($real_path, -1, 1) != '/') {
+    public static function real_path($path) {
+    //  Resolve symlinks and ../../
+        $real_path = realpath($path);
+    //  Reconstruct the path
+        $path_info = pathinfo($real_path);
+        if (!isset($path_info['dirname'])) {
+            return false;
+        }
+        $real_path = $path_info['dirname'].'/'.$path_info['basename'];
+    //  End folders in a slash
+        if (is_dir($real_path)) {
             $real_path .= '/';
         }
         return $real_path;
@@ -177,6 +185,7 @@ class Whip {
         
     }   //  _plugin_load
     
+
         
 }   //  class Whip
 

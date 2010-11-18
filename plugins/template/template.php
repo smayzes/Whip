@@ -71,17 +71,19 @@ class Template extends WhipPlugin {
      * @param array &$context. (default: array())
      */
     public function load($template_filename, &$context=array()) {
+    //  Fix path if necessary
+        $this->config['path'] = Whip::real_path($this->_config['path']);
     //  Separate real path and filename
-        $template_filename = realpath($this->_config['path'].'/'.$template_filename);
+        $template_filename = realpath($this->_config['path'].$template_filename);
         $this->_template_filename = pathinfo($template_filename, PATHINFO_BASENAME);
-        $this->_template_path = pathinfo($template_filename, PATHINFO_DIRNAME);
+        $this->_template_path = pathinfo($template_filename, PATHINFO_DIRNAME).'/';
     //  Check if path exists
         if (false == $this->_template_filename || false == $this->_template_path) {
             throw new WhipPluginException('Template file not found');
             return false;
         }
     //  And stick them back together to check if the file exists
-        $template_filename = $this->_template_path.'/'.$this->_template_filename;
+        $template_filename = $this->_template_path.$this->_template_filename;
     //  Check if file exists
         if (!file_exists($template_filename)) {
             $this->_template_filename = '';
@@ -177,6 +179,7 @@ class Template extends WhipPlugin {
                                     
             case self::TOKEN_FUNCTION_INCLUDE:
             //  INCLUDE
+                $this->_render_include($node);
                 break;
             
             default:
@@ -211,7 +214,6 @@ class Template extends WhipPlugin {
      * 
      * @access private
      * @param mixed &$node
-     * @return void
      */
     private function _render_if(&$node) {
     //  Check what kind of IF statement this is
@@ -234,8 +236,6 @@ class Template extends WhipPlugin {
         
         }   //  switch number of parameters
         
-        //print_r( $node->parameters );
-        //$if_bool = true;
         if ($if_bool) {
         //  TRUE part
             if (isset($node->children)) {
@@ -256,7 +256,6 @@ class Template extends WhipPlugin {
      * 
      * @access private
      * @param mixed &$node
-     * @return void
      */
     private function _render_for(&$node) {
         if (!isset($node->children) || !$node->children || !count($node->children)) {
@@ -285,18 +284,62 @@ class Template extends WhipPlugin {
             
         //  Loop through the values
             foreach ($for_values as &$for_value) {
-                print_r($for_variable_name);
                 $this->_context[$for_variable_name] = $for_value;
-                
                 foreach($node->children as &$child) {
                     $this->_render_tree($child);
-                }
-            }
-            
+                }   //  render each  child
+                
+            }   //  each value
             
         }   //  if proper syntax
         
     }   //  function _render_for
+    
+    
+    /**
+     * _render_include function.
+     * 
+     * @access private
+     * @param mixed &$node
+     */
+    private function _render_include(&$node) {
+    //  Resolve any variables
+        $filename = $this->_render_variable(
+            $node->parameters[0],
+            null,
+            null,
+            true
+        );
+    //  If current template's path differs from config template path,
+    //  check current template's path first
+        $len_config_path = strlen($this->_config['path']);
+        if ($this->_template_path != $this->_config['path']) {
+        //  Check current template's template path
+            $include_path = Whip::real_path($this->_template_path.$filename);
+            if (substr($include_path, 0, $len_config_path) != $this->_config['path']) {
+            //  Trying to load a template outside of the template path
+                throw new WhipPluginException('Cannot load a template outside of the template path: "'.$filename.'"');
+            }
+            elseif (file_exists($include_path)) {
+            //  Template exists
+            //  Include the template file
+                Whip::Template()->render( substr($include_path, $len_config_path), $this->_context );
+            }
+            return;
+        }   //  if template path differs from config template path
+    //  Check config template path
+        $include_path = Whip::real_path($this->_config['path'].$filename);
+        if (substr($include_path, 0, $len_config_path) != $this->_config['path']) {
+        //  Trying to load a template outside of the template path
+            throw new WhipPluginException('Cannot load a template outside of the template path: "'.$filename.'"');
+        }
+        elseif (!file_exists($include_path)) {
+        //  Template does not exist
+            throw new WhipPluginException('Template not found: "'.$filename.'"');
+        }
+    //  Include the template file
+        Whip::Template()->render( substr($include_path, $len_config_path), $this->_context );
+    }   //  function _render_include
     
     
     /**
@@ -544,6 +587,10 @@ class Template extends WhipPlugin {
      * @param mixed $variable
      */
     private function _context($variable) {
+    //  If not a variable, return literal
+        if (self::TOKEN_VARIABLE != $variable[0]) {
+            return $variable;
+        }
     //  Remove initial "$"
         $variable = substr($variable, 1);
         if (false === strpos($variable, self::TOKEN_VARIABLE_SEPARATOR)) {
@@ -556,12 +603,8 @@ class Template extends WhipPlugin {
         }   //  if simple variable
         
     //  Complex variable
-    //  Check cache first
-        if (isset($this->_context_cache[$variable])) {
-            return $this->_context_cache[$variable];
-        }
     //  Split into parts
-        $variable_parts     = explode('.', $variable);
+        $variable_parts = explode('.', $variable);
         if (!isset($this->_context[$variable_parts[0]])) {
             return null;
         }
@@ -588,8 +631,7 @@ class Template extends WhipPlugin {
         //  Object is not traversable
             return null;
         }   //  each variable part
-    //  Cache value and return
-        $this->_context_cache[$variable] = $value;
+    //  Return value
         return $value;
     }   //  function _context
     
