@@ -318,12 +318,17 @@ class Template extends WhipPlugin {
             $include_path = Whip::real_path($this->_template_path.$filename);
             if (substr($include_path, 0, $len_config_path) != $this->_config['path']) {
             //  Trying to load a template outside of the template path
+                echo 'config path = '.$this->_config['path'].'<br />';
+                echo '$len_config_path = '.$len_config_path.'<br />';
+                echo '$include_path = '.$include_path.'<br />';
+                echo '$this->_template_path = '.$this->_template_path.'('.$this->_template_filename.')<br />';
+                echo '$filename = '.$filename.'<br />';
                 throw new WhipPluginException('Cannot load a template outside of the template path: "'.$filename.'"');
             }
             elseif (file_exists($include_path)) {
             //  Template exists
             //  Include the template file
-                Whip::Template()->render( substr($include_path, $len_config_path), $this->_context );
+                Whip::Template($filename)->render( substr($include_path, $len_config_path), $this->_context );
             }
             return;
         }   //  if template path differs from config template path
@@ -338,7 +343,7 @@ class Template extends WhipPlugin {
             throw new WhipPluginException('Template not found: "'.$filename.'"');
         }
     //  Include the template file
-        Whip::Template()->render( substr($include_path, $len_config_path), $this->_context );
+        Whip::Template($filename)->render( substr($include_path, $len_config_path), $this->_context );
     }   //  function _render_include
     
     
