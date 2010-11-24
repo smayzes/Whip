@@ -198,13 +198,6 @@ class Db extends WhipPlugin {
             $query_values = $query->get_values();
         //  Prepare SQL statement
             $pdo_statement = $this->_link->prepare($query_string);
-        //  Bind values
-            /*
-            $num_values = count($query_values);
-            for($idx_value=0; $idx_value<$num_values; ++$idx_value) {
-                $pdo_statement->bindValue($idx_value+1, $query_values[$idx_value]);
-            }
-            */
         //  Execute SQL statement
             try {
                 $pdo_statement->execute( $query_values );
@@ -247,15 +240,39 @@ class Db extends WhipPlugin {
      * This should not be necessary in normal circumstances
      * 
      * @access public
-     * @return void
      */
     public function connect() {
-        //  test
         $this->_connect();
-    }
+    }   //  function connect
     
     
     
+    
+    /**
+     * save function.
+     * 
+     * @access public
+     * @param mixed WhipModel $model
+     */
+    public function save(WhipModel $model) {
+    //  Get primary key
+        $pk = $model::get_pk();
+    //  Update or insert
+        if (is_numeric($model->$pk) &&
+            $model->$pk > 0) {
+        //  Update
+            echo 'updating model...';
+            
+            print_r($model);
+            
+        }
+        else {
+        //  Insert
+            echo 'inserting model...';
+        }
+        
+        
+    }   //  function save
     
     
     

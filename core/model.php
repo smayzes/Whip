@@ -10,24 +10,18 @@
  * Released under the GNU General Public License, Version 3
  */
 abstract class WhipModel {
-    /*
-    protected $_pk              = 'id';
-    protected $_table           = '';
-    protected $_fields          = array();
-    protected $_values          = array();
-    */
-    
     public static $_pk          = 'id';
-    public static $_table       = 'foo';
+    public static $_table       = 'TABLE_NOT_SET_IN_MODEL';
     public static $_fields      = array();
     public $_values             = array();
-    
     
     
     public static function get_table() {
         return self::$_table;
     }
-    
+    public static function get_pk() {
+        return self::$_pk;
+    }
     
     /**
      * __set function.
@@ -90,6 +84,18 @@ abstract class WhipModel {
     public function __isset($name) {
         return isset($this->_values[$name]);
     }   //  __isset
+    
+    
+    /**
+     * save function.
+     *
+     * Alias for Whip::Db()->save( $model );
+     * 
+     * @access public
+     */
+    public function save() {
+        Whip::Db()->save( $this );
+    }   //  save
 
 
 }   //  model

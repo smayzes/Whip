@@ -356,6 +356,83 @@ class Query extends UncachedWhipPlugin {
     }   //  build_count
     
     
+    
+    
+    /**
+     * build_insert function.
+     *
+     * Builds the SQL query for INSERT
+     * 
+     * @access public
+     * @return void
+     */
+    public function build_insert($model_name=null) {
+    //  Check if we have a model name
+        if ($model_name!=null) {
+            $this->model($model_name);
+        }
+        if ($this->_table_name=='') {
+            throw new WhipModelException(E_MODEL_INVALID);
+            return false;
+        }
+    //  SELECT
+        $sql =
+            'SELECT COUNT(*)'.self::LF.
+            'FROM '.$this->_safe_name($this->_table_name).self::LF;
+    //  WHERE
+        if (count($this->_where_conditions)) {
+            $sql .= $this->_build_where().self::LF;
+        }
+    //  LIMIT / OFFSET
+        if ($this->_limit) {
+            $sql .= 'LIMIT '.((int)$this->_limit).self::LF;
+        }
+        if ($this->_offset) {
+            $sql .= 'OFFSET '.((int)$this->_offset).self::LF;
+        }
+        return $sql;
+    }   //  build_insert
+    
+    
+    /**
+     * build_update function.
+     *
+     * Builds the SQL query for UPDATE
+     * 
+     * @access public
+     * @return void
+     */
+    public function build_update($model_name=null) {
+    //  Check if we have a model name
+        if ($model_name!=null) {
+            $this->model($model_name);
+        }
+        if ($this->_table_name=='') {
+            throw new WhipModelException(E_MODEL_INVALID);
+            return false;
+        }
+    //  SELECT
+        $sql =
+            'SELECT COUNT(*)'.self::LF.
+            'FROM '.$this->_safe_name($this->_table_name).self::LF;
+    //  WHERE
+        if (count($this->_where_conditions)) {
+            $sql .= $this->_build_where().self::LF;
+        }
+    //  LIMIT / OFFSET
+        if ($this->_limit) {
+            $sql .= 'LIMIT '.((int)$this->_limit).self::LF;
+        }
+        if ($this->_offset) {
+            $sql .= 'OFFSET '.((int)$this->_offset).self::LF;
+        }
+        return $sql;
+    }   //  build_update
+    
+    
+    
+    
+    
     /**
      * get_values function.
      *

@@ -41,7 +41,7 @@ class TemplateBlockRoot extends TemplateBlock {
         $this->children[] = $node;
     }   //  function add_child
     
-}   //  Root
+}   //  TemplateRoot
 
 
 /**
@@ -123,7 +123,7 @@ class TemplateBlockFunction extends TemplateBlock {
         }
     }   //  function add_child
     
-}   //  Function
+}   //  TemplateFunction
 
 
 
@@ -161,6 +161,11 @@ class TemplateBlockVariable extends TemplateBlock {
         $this->variable     = array_shift($token_parts);
         $this->parameters   = $token_parts;
         
+        if (count($this->parameters)) {
+            print_r($this->parameters);
+        }
+        
+        
     }   //  __construct
     
     public function __toString() {
@@ -171,9 +176,21 @@ class TemplateBlockVariable extends TemplateBlock {
         echo $this->variable;
     }   //  function render
 
-}   //  Variable
+}   //  TemplateVariable
 
 
+
+/**
+ * TemplateModifier class.
+ * 
+ */
+abstract class TemplateModifier {
+    
+    static function run($value) {
+        return $value;
+    }
+    
+}   //  TemplateModifier
 
 
 

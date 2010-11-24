@@ -185,6 +185,30 @@ class Whip {
         
     }   //  _plugin_load
     
+    
+    /**
+     * gp function.
+     *
+     * Get a get/post variable
+     * 
+     * @access public
+     * @static
+     * @param mixed $n
+     * @param mixed $default. (default: null)
+     */
+    public static function gp($n, $default=null) {
+        if (isset($_POST[$n])) {
+            $v = $_POST[$n];
+        }
+        elseif (isset($_GET[$n])) {
+            $v = $_GET[$n];
+        }
+        else {
+            $v = $default;
+        }
+        return $v;
+    }   //  function gp
+    
 
         
 }   //  class Whip

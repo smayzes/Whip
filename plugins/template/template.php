@@ -579,6 +579,18 @@ class Template extends WhipPlugin {
         //  Use default value
             $value = $default;
         }
+        
+    //  Run any modifiers
+        $num_modifiers = count($parameters);
+        if ($num_modifiers) {
+            for ($i_modifier=0; $i_modifier<$num_modifiers; ++$i_modifier) {
+            //  Make sure modifier is loaded
+                $modifier_class_name = $this->_load_modifier($parameters[$i_modifier]);
+                $value = $modifier_class_name::run($value);
+            }
+        }   //  if modifiers
+        
+        
     //  Render / Return
         if (true === $return) {
             return $value;
@@ -657,6 +669,36 @@ class Template extends WhipPlugin {
     //  Return value
         return $value;
     }   //  function _context
+    
+    
+    /**
+     * _load_modifier function.
+     * 
+     * @access private
+     * @param mixed $name
+     * @return void
+     */
+    private function _load_modifier($name) {
+    //  Get modifier class name
+        $modifier_class_name = 'TemplateModifier'.ucfirst($name);
+        if (!class_exists($modifier_class_name)) {
+        //  Check name for security
+            if (!preg_match('/^[a-z0-9_-]+$/i', $name)) {
+                throw new WhipPluginException('Unsafe modifier used: '.$name);
+                return false;
+            }
+        //  Load modifier file
+            $modifier_file_name = Whip::real_path(__DIR__).'modifiers/'.$name.'.php';
+            if (!file_exists($modifier_file_name)) {
+                throw new WhipPluginException('Modifier not found: '.$name);
+                return false;
+            }
+            include_once($modifier_file_name);
+        }
+        return $modifier_class_name;
+    }   //  function _load_modifier
+    
+    
     
 }   //  class Template
 
