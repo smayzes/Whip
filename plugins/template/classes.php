@@ -160,12 +160,6 @@ class TemplateBlockVariable extends TemplateBlock {
         $token_parts        = explode(Template::TOKEN_VARIABLE_MODIFIER, $token_parts);
         $this->variable     = array_shift($token_parts);
         $this->parameters   = $token_parts;
-        
-        if (count($this->parameters)) {
-            print_r($this->parameters);
-        }
-        
-        
     }   //  __construct
     
     public function __toString() {
