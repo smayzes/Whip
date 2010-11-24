@@ -44,8 +44,8 @@ class Query extends UncachedWhipPlugin {
     private $_where_values = array();
     private $_limit = 0;
     private $_offset = 0;
-    private $_order_field = '';
-    private $_order_direction = self::ORDER_ASC;
+    private $_order_fields = array();
+    private $_order_directions = array();//self::ORDER_ASC;
     
     /**
      * model function.
@@ -246,17 +246,17 @@ class Query extends UncachedWhipPlugin {
     public function order($field, $direction=self::ORDER_ASC) {
         if ($direction==self::ORDER_ASC) {
         //  ASC
-            $this->_order_field = $this->_safe_name($field);
-            $this->_order_direction = self::ORDER_ASC;
+            $this->_order_fields[] = $this->_safe_name($field);
+            $this->_order_directions[] = self::ORDER_ASC;
         }
         elseif ($direction==self::ORDER_DESC) {
         //  DESC
-            $this->_order_field = $this->_safe_name($field);
-            $this->_order_direction = self::ORDER_DESC;
+            $this->_order_fields[] = $this->_safe_name($field);
+            $this->_order_directions[] = self::ORDER_DESC;
         }
         else {
         //  UNKNOWN
-            throw new WhipDataException(E_DATA_INVALID_ORDER_DIRECTION);
+            throw new WhipDataException(E_DATA_INVALID_order_directions);
         }
         return $this;
     }   //  order
@@ -297,6 +297,18 @@ class Query extends UncachedWhipPlugin {
         if (count($this->_where_conditions)) {
             $sql .= $this->_build_where().self::LF;
         }
+    //  ORDER
+        $num_order = count($this->_order_fields);
+        if ($num_order) {
+            
+            $sql_order = array();
+            for($i_field=0; $i_field<$num_order; ++$i_field) {
+                $sql_order[] = $this->_order_fields[$i_field].' '.$this->_order_directions[$i_field];
+            }
+            $sql .= 'ORDER BY '.implode(', ',$sql_order).self::LF;
+        }
+        
+        
     //  LIMIT / OFFSET
         if ($this->_limit) {
             $sql .= 'LIMIT '.((int)$this->_limit).self::LF;

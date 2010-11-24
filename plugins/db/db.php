@@ -120,6 +120,49 @@ class Db extends WhipPlugin {
         }
         return $results;
     }   //  function get_one
+    
+    
+    /**
+     * get_field function.
+     *
+     * Returns one field.
+     * 
+     * @access public
+     * @param mixed $query
+     */
+    public function get_field($query) {
+    //  Make sure we are connected
+        if (!$this->_connect()) {
+        //@TODO: Throw Exception!
+            return false;
+        }
+    //  ...
+        if (!is_string($query)) {
+        //  We have not been passed a string.
+            //@TODO: Throw exception!
+            return false;
+        }
+    //  We have been passed a raw query string.
+    //  Execute the query straight up.
+        try {
+            $pdo_statement = $this->_link->query($query, PDO::FETCH_NUM);
+            $pdo_statement->execute();
+            $pdo_statement->setFetchMode(PDO::FETCH_NUM);
+            $data = $pdo_statement->fetch();
+        }
+        catch(Exception $e) {
+            throw $e;
+            return false;
+        }
+    //  Return data
+        if (isset($data)) {
+            if (count($data)==1) {
+                return $data[0];
+            }
+            return $data;
+        }
+        return false;
+    }   //  function get_field
 
 
 
@@ -187,15 +230,11 @@ class Db extends WhipPlugin {
                 return false;
             }
             //  TODO: Fetch data and stmt->closeCursor
-            
         }
-        
     //  Return data (WhipModels)
-        //if (isset($data) && is_array($data) && count($data)) {
         if (isset($data) && is_array($data)) {
             return $data;
         }
-        echo $query_string;
         return false;
     }   //  function get_all    
     

@@ -232,7 +232,25 @@ class Template extends WhipPlugin {
             break;
             
         case 2:
+        //TODO: throw exception
+            break;
             
+        case 3:
+        //  Comparitive IF:      IF $var > 5
+            $value1     = $this->_render_variable($node->parameters[0], null, null, true);
+            $value2     = $this->_render_variable($node->parameters[2], null, null, true);
+            $operator   = strtolower($node->parameters[1]);
+            
+            switch($operator) {
+            case '==':
+            case 'eq':
+            case 'is':
+            //  Equals
+                $if_bool = (bool)($value1 == $value2);
+                break;
+            }
+            
+            break;
         
         }   //  switch number of parameters
         
