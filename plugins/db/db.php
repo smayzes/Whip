@@ -254,24 +254,37 @@ class Db extends WhipPlugin {
      * @access public
      * @param mixed WhipModel $model
      */
-    public function save(WhipModel $model) {
-    //  Get primary key
+    public function save(WhipModel &$model) {
+    //  Initialize query
+        $query = Whip::Query();
+    //  Prepare and execute the query.
+        $is_insert = false;
         $pk = $model::get_pk();
-    //  Update or insert
-        if (is_numeric($model->$pk) &&
-            $model->$pk > 0) {
+        if (is_numeric($model->$pk) && $model->$pk > 0) {
         //  Update
-            echo 'updating model...';
-            
-            print_r($model);
-            
+            $query_string = $query->build_update($model);
         }
         else {
         //  Insert
-            echo 'inserting model...';
+            $query_string = $query->build_insert($model);
+            $is_insert = true;
         }
-        
-        
+    //  Prepare SQL statement
+        $query_values = $query->get_values();
+        $pdo_statement = $this->_link->prepare($query_string);
+
+    //  Execute SQL statement
+        try {
+            $pdo_statement->execute( $query_values );
+            if ($is_insert) {
+            //  Get new primary key value
+                $model->{$model::$_pk} = $this->_link->lastInsertId();
+            }
+        }
+        catch(Exception $e) {
+            throw $e;
+            return false;
+        }
     }   //  function save
     
     

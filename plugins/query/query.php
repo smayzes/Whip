@@ -368,28 +368,23 @@ class Query extends UncachedWhipPlugin {
      */
     public function build_insert($model_name=null) {
     //  Check if we have a model name
-        if ($model_name!=null) {
-            $this->model($model_name);
+        $this->model($model);
+    //  Make sure the model's field names are safe
+        $fields = array();
+        foreach($model::$_fields as $field) {
+            if ($field != $model::$_pk) {
+            //  Don't insert the PK value
+                $fields[] = $this->_safe_name($field);
+                $this->_where_values[] = $model->$field;
+            }
         }
-        if ($this->_table_name=='') {
-            throw new WhipModelException(E_MODEL_INVALID);
-            return false;
-        }
-    //  SELECT
+    //  Build SQL
         $sql =
-            'SELECT COUNT(*)'.self::LF.
-            'FROM '.$this->_safe_name($this->_table_name).self::LF;
-    //  WHERE
-        if (count($this->_where_conditions)) {
-            $sql .= $this->_build_where().self::LF;
-        }
-    //  LIMIT / OFFSET
-        if ($this->_limit) {
-            $sql .= 'LIMIT '.((int)$this->_limit).self::LF;
-        }
-        if ($this->_offset) {
-            $sql .= 'OFFSET '.((int)$this->_offset).self::LF;
-        }
+            'INSERT INTO '.$this->_safe_name($this->_table_name).self::LF.
+            '('.implode(',',$fields).')'.self::LF.
+            'VALUES'.self::LF.
+            '('.implode(',', array_fill(0, count($fields), self::PDO_PLACEHOLDER)).')';
+    //  Return
         return $sql;
     }   //  build_insert
     
@@ -402,30 +397,26 @@ class Query extends UncachedWhipPlugin {
      * @access public
      * @return void
      */
-    public function build_update($model_name=null) {
+    public function build_update(WhipModel $model) {
     //  Check if we have a model name
-        if ($model_name!=null) {
-            $this->model($model_name);
+        $this->model($model);
+    //  Make sure the model's field names are safe
+        $sql_set = array();
+        foreach($model::$_fields as $field) {
+            if ($field != $model::$_pk) {
+            //  Don't update the PK
+                $sql_set[] = $this->_safe_name($field).'='.self::PDO_PLACEHOLDER;
+                $this->_where_values[] = $model->$field;
+            }
         }
-        if ($this->_table_name=='') {
-            throw new WhipModelException(E_MODEL_INVALID);
-            return false;
-        }
-    //  SELECT
+        $this->_where_values[] = $model->{$model::$_pk};
+    //  Build SQL
         $sql =
-            'SELECT COUNT(*)'.self::LF.
-            'FROM '.$this->_safe_name($this->_table_name).self::LF;
-    //  WHERE
-        if (count($this->_where_conditions)) {
-            $sql .= $this->_build_where().self::LF;
-        }
-    //  LIMIT / OFFSET
-        if ($this->_limit) {
-            $sql .= 'LIMIT '.((int)$this->_limit).self::LF;
-        }
-        if ($this->_offset) {
-            $sql .= 'OFFSET '.((int)$this->_offset).self::LF;
-        }
+            'UPDATE '.$this->_safe_name($this->_table_name).self::LF.
+            'SET'.self::LF.
+            implode(',',$sql_set).self::LF.
+            'WHERE '.$this->_safe_name($model::$_pk).'='.self::PDO_PLACEHOLDER;
+    //  Return
         return $sql;
     }   //  build_update
     
