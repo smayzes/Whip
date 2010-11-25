@@ -585,8 +585,10 @@ class Template extends WhipPlugin {
         if ($num_modifiers) {
             for ($i_modifier=0; $i_modifier<$num_modifiers; ++$i_modifier) {
             //  Make sure modifier is loaded
-                $modifier_class_name = $this->_load_modifier($parameters[$i_modifier]);
-                $value = $modifier_class_name::run($value);
+                $parameter = preg_split('/[\s]+/', $parameters[$i_modifier]);
+                $modifier_class_name = $this->_load_modifier(array_shift($parameter));
+                array_unshift($parameter, $value);
+                $value = call_user_func_array($modifier_class_name.'::run', $parameter);
             }
         }   //  if modifiers
         
