@@ -128,7 +128,7 @@ class Db extends WhipPlugin {
      * Returns one field.
      * 
      * @access public
-     * @param mixed $query
+     * @param string $query
      */
     public function get_field($query) {
     //  Make sure we are connected
@@ -163,6 +163,39 @@ class Db extends WhipPlugin {
         }
         return false;
     }   //  function get_field
+    
+    
+    /**
+     * execute function.
+     *
+     * Executes a query.
+     * 
+     * @access public
+     * @param string $query
+     */
+    public function execute($query) {
+    //  Make sure we are connected
+        if (!$this->_connect()) {
+        //@TODO: Throw Exception!
+            return false;
+        }
+    //  ...
+        if (!is_string($query)) {
+        //  We have not been passed a string.
+            //@TODO: Throw exception!
+            return false;
+        }
+    //  We have been passed a raw query string.
+    //  Execute the query straight up.
+        try {
+            $pdo_statement = $this->_link->query($query, PDO::FETCH_NUM);
+            $pdo_statement->execute();
+        }
+        catch(Exception $e) {
+            throw $e;
+            return false;
+        }
+    }   //  function execute
 
 
 
@@ -255,6 +288,11 @@ class Db extends WhipPlugin {
      * @param mixed WhipModel $model
      */
     public function save(WhipModel &$model) {
+    //  Make sure we are connected
+        if (!$this->_connect()) {
+        //@TODO: Throw Exception!
+            return false;
+        }
     //  Initialize query
         $query = Whip::Query();
     //  Prepare and execute the query.

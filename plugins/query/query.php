@@ -356,8 +356,6 @@ class Query extends UncachedWhipPlugin {
     }   //  build_count
     
     
-    
-    
     /**
      * build_insert function.
      *
@@ -366,7 +364,7 @@ class Query extends UncachedWhipPlugin {
      * @access public
      * @return void
      */
-    public function build_insert($model_name=null) {
+    public function build_insert(WhipModel $model) {
     //  Check if we have a model name
         $this->model($model);
     //  Make sure the model's field names are safe
