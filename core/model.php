@@ -96,6 +96,30 @@ abstract class WhipModel {
     public function save() {
         Whip::Db()->save( $this );
     }   //  save
+    
+    
+    
+    
+    /**
+     * autofill function.
+     *
+     * Auto-fill this model with GET / POST values
+     * 
+     * @access public
+     */
+    public function autofill() {
+        $class_name = get_called_class();
+        foreach($class_name::$_fields as $field) {
+            if (isset($_POST[$field])) {
+            //  Set value
+                $this->$field = $_POST[$field];
+            }
+            elseif (isset($_GET[$field])) {
+            //  Set value
+                $this->$field = $_GET[$field];
+            }
+        }   //  each field
+    }   //  function autofill
 
 
 }   //  model
