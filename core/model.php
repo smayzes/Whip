@@ -56,19 +56,19 @@ abstract class WhipModel {
         $class_name = get_called_class();
         if (in_array($field, array_keys($class_name::$_fields))) {
             if (isset($this->_values[$field])) {
-            #   Return field value
+            //  Return field value
                 return $this->_values[$field];
             }
             else {
-            #   Value not set. Throw Exception
-                throw new WhipException(E_MODEL_FIELD_NOT_FOUND);
+            //  Value not set.
+                //throw new WhipException(E_MODEL_FIELD_NOT_FOUND);
                 return null;
             }
             
         }
         else {
-            //debug_print_backtrace();
-            //trigger_error(ERROR_FIELD_NOT_DEFINED, E_USER_WARNING);
+        //  Field does not exist. Throw Exception
+            throw new WhipException(E_MODEL_FIELD_NOT_FOUND);
             return null;
         }
     }   //  __get
