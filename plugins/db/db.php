@@ -123,6 +123,54 @@ class Db extends WhipPlugin {
     
     
     /**
+     * get_count function.
+     *
+     * Returns the number of rows that match a query.
+     * 
+     * @access public
+     * @param mixed $model_name
+     * @param mixed $query
+     * @return int
+     */
+    public function get_count($model_name, Query $query) {
+    //  Make sure the model exists
+        try {
+            Whip::model($model_name);
+        }
+        catch(Exception $e) {
+            throw $e;
+            return false;
+        }
+    //  Make sure we are connected
+        if (!$this->_connect()) {
+        //@TODO: Throw Exception!
+            return false;
+        }
+    //  Make sure we have been passed a query class.
+        if (!($query instanceof WhipPlugin) || !($query instanceof Query)) {
+            throw new WhipPluginException(E_PLUGIN_INVALID.': Query');
+            return false;
+        }
+    //  Prepare and execute the query.
+        $query_string = $query->build_count($model_name);
+        $query_values = $query->get_values();
+    //  Prepare SQL statement
+        $pdo_statement = $this->_link->prepare($query_string);
+    //  Execute SQL statement
+        try {
+            $pdo_statement->execute( $query_values );
+            $pdo_statement->setFetchMode(PDO::FETCH_NUM);
+            $data = $pdo_statement->fetchColumn(0);
+        }
+        catch(Exception $e) {
+            throw $e;
+            return false;
+        }
+        return $data;
+    }   //  function get_count
+    
+    
+    /**
      * get_field function.
      *
      * Returns one field.
@@ -262,7 +310,7 @@ class Db extends WhipPlugin {
             return $data;
         }
         return false;
-    }   //  function get_all    
+    }   //  function get_all
     
     
 
