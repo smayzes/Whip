@@ -236,8 +236,7 @@ class Db extends WhipPlugin {
     //  We have been passed a raw query string.
     //  Execute the query straight up.
         try {
-            $pdo_statement = $this->_link->query($query, PDO::FETCH_NUM);
-            $pdo_statement->execute();
+            $pdo_statement = $this->_link->exec($query);
         }
         catch(Exception $e) {
             throw $e;
@@ -366,6 +365,7 @@ class Db extends WhipPlugin {
             //  Get new primary key value
                 $model->{$model::$_pk} = $this->_link->lastInsertId();
             }
+            return true;
         }
         catch(Exception $e) {
             throw $e;
