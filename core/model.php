@@ -40,7 +40,7 @@ abstract class WhipModel {
         else {
         #   Create a new property
         #   Auto-create field / property
-            throw new WhipException(E_MODEL_FIELD_NOT_FOUND);
+            //throw new WhipException(E_MODEL_FIELD_NOT_FOUND);
             $this->_values[$field] = $value;
         }
     }   //  __set
@@ -94,7 +94,7 @@ abstract class WhipModel {
      * @access public
      */
     public function save() {
-        Whip::Db()->save( $this );
+        return Whip::Db()->save( $this );
     }   //  save
     
     

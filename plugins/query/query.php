@@ -165,6 +165,12 @@ class Query extends UncachedWhipPlugin {
     }
     
     /**
+     * Add a WHERE ... NOT clause
+     */
+    public function where_not($column_name, $value) {
+        return $this->where($column_name, $value, '!=');
+    }
+    /**
      * Add a WHERE ... LIKE clause
      */
     public function where_like($column_name, $value) {
