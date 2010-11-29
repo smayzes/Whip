@@ -294,7 +294,10 @@ class Db extends WhipPlugin {
         //  Execute the query straight up.
             try {
                 $pdo_statement = $this->_link->query($query, PDO::FETCH_CLASS, $model_name);
-                $pdo_statement->execute();
+                if (false === $pdo_statement) {
+                    return false;
+                }
+                //$pdo_statement->execute();
                 $pdo_statement->setFetchMode(PDO::FETCH_CLASS, $model_name);
                 $data = $pdo_statement->fetchAll();
             }
@@ -352,6 +355,10 @@ class Db extends WhipPlugin {
         else {
         //  Insert
             $query_string = $query->build_insert($model);
+            if ($this->_config['driver'] == 'pgsql') {
+            //  Postgres:   RETURNING
+                $query_string .= ' RETURNING '.$model::$_pk;
+            }
             $is_insert = true;
         }
     //  Prepare SQL statement
@@ -363,14 +370,20 @@ class Db extends WhipPlugin {
             $pdo_statement->execute( $query_values );
             if ($is_insert) {
             //  Get new primary key value
-                $model->{$model::$_pk} = $this->_link->lastInsertId();
+                if ($this->_config['driver'] == 'pgsql') {
+                //  Postgres:   RETURNING
+                    $model->{$model::$_pk} = $pdo_statement->fetchColumn();
+                }
+                else {
+                    $model->{$model::$_pk} = $this->_link->lastInsertId();
+                }
             }
-            return true;
         }
         catch(Exception $e) {
             throw $e;
             return false;
         }
+        return true;
     }   //  function save
     
     
