@@ -248,9 +248,81 @@ class Template extends WhipPlugin {
             //  Equals
                 $if_bool = (bool)($value1 == $value2);
                 break;
-            }
+                
+            case '!=':
+            case 'ne':
+            case 'neq':
+            case 'not':
+            //  NOT Equals
+                $if_bool = (bool)($value1 != $value2);
+                break;
             
+            case '>=':
+            case '=>':
+            case 'gte':
+            //  Greater than or equal to
+                $if_bool = (bool)($value1 >= $value2);
+                break;
+                
+            case '<=':
+            case '=<':
+            case 'lte':
+            //  Less than or equal to
+                $if_bool = (bool)($value1 <= $value2);
+                break;
+                
+            case '>':
+            case 'gt':
+            //  Greater than
+                $if_bool = (bool)($value1 > $value2);
+                break;
+                
+            case '<':
+            case 'lt':
+            //  Less than
+                $if_bool = (bool)($value1 < $value2);
+                break;
+                
+            case 'in':
+            //  In (array)
+                if (is_array($value2)) {
+                    $if_bool = in_array($value1, $value2);
+                }
+                else {
+                    $if_bool = false;
+                }
+                break;
+                
+            case 'nin':
+            //  NOT in (array)
+                if (is_array($value2)) {
+                    $if_bool = !in_array($value1, $value2);
+                }
+                else {
+                    $if_bool = true;
+                }
+                break;
+                
+            case 'contains':
+            //  Contains (array)
+                if (is_array($value1)) {
+                    $if_bool = in_array($value2, $value1);
+                }
+                else {
+                    $if_bool = false;
+                }
+                break;
+            
+            default:
+            //  Unsupported operator
+                throw new WhipPluginException('Unsupported IF tag operator: '.$operator);
+                break;
+            }
             break;
+        
+        default:
+        //  Unexpected number of parameters
+            throw new WhipPluginException('Unexpected number of parameters in an IF tag');
         
         }   //  switch number of parameters
         
@@ -586,9 +658,23 @@ class Template extends WhipPlugin {
             for ($i_modifier=0; $i_modifier<$num_modifiers; ++$i_modifier) {
             //  Make sure modifier is loaded
                 $parameter = preg_split('/[\s]+/', $parameters[$i_modifier]);
-                $modifier_class_name = $this->_load_modifier(array_shift($parameter));
+                $modifier_class_name = array_shift($parameter);
                 array_unshift($parameter, $value);
-                $value = call_user_func_array($modifier_class_name.'::run', $parameter);
+                if (strpos($modifier_class_name, self::TOKEN_VARIABLE_SEPARATOR)) {
+                //  Custom modifier function name.
+                    list($modifier_class_name, $modifier_function_name) = explode(
+                        self::TOKEN_VARIABLE_SEPARATOR,
+                        $modifier_class_name,
+                        2
+                    );
+                }
+                else {
+                //  Default modifier function name.
+                    $modifier_function_name = 'run';
+                }
+                $modifier_class_name = $this->_load_modifier($modifier_class_name);
+            //  Execute the modifier
+                $value = call_user_func_array($modifier_class_name.'::'.$modifier_function_name, $parameter);
             }
         }   //  if modifiers
         
@@ -685,7 +771,7 @@ class Template extends WhipPlugin {
         $modifier_class_name = 'TemplateModifier'.ucfirst($name);
         if (!class_exists($modifier_class_name)) {
         //  Check name for security
-            if (!preg_match('/^[a-z0-9_-]+$/i', $name)) {
+            if (!preg_match('/^[a-z0-9_\.-]+$/i', $name)) {
                 throw new WhipPluginException('Unsafe modifier used: '.$name);
                 return false;
             }

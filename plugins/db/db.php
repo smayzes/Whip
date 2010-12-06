@@ -270,7 +270,10 @@ class Db extends WhipPlugin {
         //@TODO: Throw Exception!
             return false;
         }
-    //  ...
+    //  Have we been passed:
+    //  - a Query object
+    //  - raw sql
+    //  - or a primary key value?
         if ($query instanceof WhipPlugin && $query instanceof Query) {
         //  We have been passed a query class.
         //  Prepare and execute the query.
@@ -281,6 +284,27 @@ class Db extends WhipPlugin {
         //  Execute SQL statement
             try {
                 $pdo_statement->execute( $query_values );
+                $pdo_statement->setFetchMode(PDO::FETCH_CLASS, $model_name);
+                $data = $pdo_statement->fetchAll();
+            }
+            catch(Exception $e) {
+                throw $e;
+                return false;
+            }
+        }
+        elseif (is_numeric($query)) {
+        //  We have been passed a primary key value.
+        //  Retrieve a model instance by its primary key.
+            $query_string =
+                'SELECT *'.
+                ' FROM '.$model_name::$_table.
+                ' WHERE '.$model_name::$_pk.'='.((int)$query).
+                ' LIMIT 1';
+            try {
+                $pdo_statement = $this->_link->query($query_string, PDO::FETCH_CLASS, $model_name);
+                if (false === $pdo_statement) {
+                    return false;
+                }
                 $pdo_statement->setFetchMode(PDO::FETCH_CLASS, $model_name);
                 $data = $pdo_statement->fetchAll();
             }
