@@ -15,7 +15,11 @@ define('E_URLS_MISSING',                'No RSS URLs Set.');
 define('E_URLS_NOT_VALID', 				'This RSS URL is not valid.');
 
 class Rss extends WhipPlugin {
+
+//  Cross-instance
+    protected static $_require = array('Db', 'Query');           //  array: names of plugins required to run this plugin
     
+
     public $urls = array();
     public $file_contents = null;
     public $document = null;
@@ -100,12 +104,12 @@ class Rss extends WhipPlugin {
     	$document->loadXML($rss);
     	
     // Get and Save the rss channel data
-       	$RSS_Channel_ID = $this->_save_channel($this->_get_rss_sections($document->getElementsByTagName('channel')));
+       	$RSS_Channel_ID = $this->_save_channel($this->_get_rss_sections($document->getElementsByTagName('channel')), $url);
     // Get and Save the rss item data
        	$this->_save_item($this->_get_rss_sections($document->getElementsByTagName('item')), $RSS_Channel_ID);
     } // _parse_xml
     
-    private function _save_channel($channel) {
+    private function _save_channel($channel, $url = null) {
     // We only ever want the first channel
     	$channel = $channel[0];
     	
@@ -128,21 +132,20 @@ class Rss extends WhipPlugin {
 		    }		   
 			
 		// Set the RSS_Channel values to insert/update
-			$RSS_Channel->url	 		= $channel['link'];
+			$RSS_Channel->url	 		= ( $url ) ? $url : $channel['link'];
 			$RSS_Channel->link	 		= $channel['link'];
 			$RSS_Channel->hash	 		= $hash;
 			$RSS_Channel->language	 	= ( isset($channel['language']) ) ? $channel['language'] : null;
 			$RSS_Channel->copyright	 	= ( isset($channel['copyright']) ) ? $channel['copyright'] : null;
-			$RSS_Channel->managingeditor= ( isset($channel['managingeditor']) ) ? $channel['managingeditor'] : null;
+			$RSS_Channel->managingeditor= ( isset($channel['managingEditor']) ) ? $channel['managingEditor'] : null;
 			$RSS_Channel->webmaster	 	= ( isset($channel['webmaster']) ) ? $channel['webmaster'] : null;
-			$RSS_Channel->pubdate	 	= ( isset($channel['pubdate']) ) ? $channel['pubdate'] : null;
-			$RSS_Channel->lastbuilddate	= ( isset($channel['lastbuilddate']) ) ? $channel['lastbuilddate'] : null;
+			$RSS_Channel->pubdate	 	= ( isset($channel['pubDate']) ) ? $channel['pubDate'] : null;
+			$RSS_Channel->lastbuilddate	= ( isset($channel['lastBuildDate']) ) ? $channel['lastBuildDate'] : null;
 			$RSS_Channel->category	 	= ( isset($channel['category']) ) ? $channel['category'] : null;
 			$RSS_Channel->docs	 		= ( isset($channel['docs']) ) ? $channel['docs'] : null;
 			$RSS_Channel->ttl	 		= ( isset($channel['ttl']) ) ? $channel['ttl'] : null;
 			$RSS_Channel->title 		= ( isset($channel['title']) ) ? $channel['title'] : null;
 			$RSS_Channel->description 	= ( isset($channel['description']) ) ? $channel['description'] : null;
-			$RSS_Channel->pubdate 		= ( isset($channel['pubDate']) ) ? $channel['pubDate'] : null;
 			$RSS_Channel->generator 	= ( isset($channel['generator']) ) ? $channel['generator'] : null;
 			
 			$RSS_Channel->save();
@@ -164,23 +167,28 @@ class Rss extends WhipPlugin {
     	// Loop throuch each item from the rss feed
     	foreach ( $items as $item ) {
     		$RSS_Item 				= new RSS_Item();
+
+
     	//   Use guid or link for unique key
-    		$hash = ( isset($item['guid']) ) ? md5($item['guid']) : md5($item['link']);
+    		$hash = ( !empty($item['guid']) ) ? md5($item['guid']) : md5($item['link']);
     		
     	// Check if this feed item exists in our database already
-    		$RSS_Item 				=  Whip::Db()->get_all(
+    		$RSS_Item 				=  Whip::Db()->get_one(
 											'RSS_Item',
 											Whip::Query()->where('hash', $hash)
 									   );
+            
 		// Check if this item is not in our database
 		// If it is not, then we load a new/clean instance of RSS_Item						   		    
 			if ( !isset($RSS_Item->id) ) {
 				$RSS_Item 			= new RSS_Item;
 				$RSS_Item->id	 		= 0; // TODO: Remove when Menno fixes bug
 			}
+
+
 		// Set the RSS_Item values to insert/update
     		$RSS_Item->channel_id 	= $rss_channel_id;
-    		$RSS_Item->hash		 	= $hash;;
+    		$RSS_Item->hash		 	= $hash;
 			$RSS_Item->title	 	= ( isset($item['title']) ) ? $item['title'] : null;
 			$RSS_Item->link	 		= ( isset($item['link']) ) ? $item['link'] : null;
 			$RSS_Item->description	= ( isset($item['description']) ) ? $item['description'] : null;
@@ -189,7 +197,7 @@ class Rss extends WhipPlugin {
 			$RSS_Item->comments	 	= ( isset($item['comments']) ) ? $item['comments'] : null;
 			$RSS_Item->enclosure	= ( isset($item['enclosure']) ) ? $item['enclosure'] : null;
 			$RSS_Item->guid	 		= ( isset($item['guid']) ) ? $item['guid'] : null;
-			$RSS_Item->pubdate	 	= ( isset($item['pubdate']) ) ? $item['pubdate'] : null;
+			$RSS_Item->pubdate	 	= ( isset($item['pubdate']) ) ? $item['pubdate'] : date('Y-m-d H:i:s');
 			$RSS_Item->source	 	= ( isset($item['source']) ) ? $item['source'] : null;
 			
 			$RSS_Item->save();
