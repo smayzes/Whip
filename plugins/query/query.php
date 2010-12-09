@@ -406,7 +406,13 @@ class Query extends UncachedWhipPlugin {
         $this->model($model);
     //  Make sure the model's field names are safe
         $sql_set = array();
-        foreach($model::$_fields as $field) {
+        $fields = $model->get_dirty_fields();
+        if (0 == count($fields)) {
+        //  No fields to update
+            return false;
+        }
+        foreach($fields as $field) {
+        //foreach($model::$_fields as $field) {
             if ($field != $model::$_pk) {
             //  Don't update the PK
                 $sql_set[] = $this->_safe_name($field).'='.self::PDO_PLACEHOLDER;
