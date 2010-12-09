@@ -14,13 +14,16 @@ abstract class WhipModel {
     public static $_table       = 'TABLE_NOT_SET_IN_MODEL';
     public static $_fields      = array();
     public $_values             = array();
+    private $_fields_dirty      = array();
     
     
     public static function get_table() {
-        return self::$_table;
+        $class_name = get_called_class();
+        return $class_name::$_table;
     }
     public static function get_pk() {
-        return self::$_pk;
+        $class_name = get_called_class();
+        return $class_name::$_pk;
     }
     
     /**
@@ -34,12 +37,15 @@ abstract class WhipModel {
     public function __set($field, $value) {
         $class_name = get_called_class();
         if (in_array($field, $class_name::$_fields)) {
-        #   Set field value
+        //  Set field value
             $this->_values[$field] = $value;
+            if ($field != $class_name::$_pk) {
+            //  If not the PK, mark field as dirty
+                $this->mark_dirty($field);
+            }
         }
         else {
-        #   Create a new property
-        #   Auto-create field / property
+        //  Auto-create property, but NOT the field
             //throw new WhipException(E_MODEL_FIELD_NOT_FOUND);
             $this->_values[$field] = $value;
         }
@@ -64,7 +70,6 @@ abstract class WhipModel {
                 //throw new WhipException(E_MODEL_FIELD_NOT_FOUND);
                 return null;
             }
-            
         }
         else {
         //  Field does not exist. Throw Exception
@@ -73,7 +78,76 @@ abstract class WhipModel {
         }
     }   //  __get
     
-
+    
+    /**
+     * mark_all_clean function.
+     * 
+     * Mark all fields as "clean", meaning they will NOT get
+     * updated when the save() method is called.
+     *
+     * @access public
+     */
+    public function mark_all_clean() {
+        $this->_fields_dirty = array();
+    }   //  mark_all_clean
+    
+    /**
+     * mark_clean function.
+     * 
+     * Mark a field as "clean", meaning it will NOT get
+     * updated when the save() method is called.
+     *
+     * @access public
+     * @param mixed $field_name
+     */
+    public function mark_clean($field_name) {
+        if (in_array($field_name, $this->_fields_dirty)) {
+            unset($this->_fields_dirty[$field_name]);
+        }
+    }   //  mark_clean
+    
+    /**
+     * mark_dirty function.
+     * 
+     * Mark a field as "dirty", meaning it WILL get
+     * updated when the save() method is called.
+     *
+     * @access public
+     * @param mixed $field_name
+     */
+    public function mark_dirty($field_name) {
+        $this->_fields_dirty[$field_name] = $field_name;
+    }   //  mark_dirty
+    
+    /**
+     * mark_all_dirty function.
+     * 
+     * Mark all fields as "dirty", meaning they WILL get
+     * updated when the save() method is called.
+     *
+     * @access public
+     */
+    public function mark_all_dirty() {
+        $class_name = get_called_class();
+        $this->_fields_dirty = array();
+        foreach($class_name::$_fields as $field) {
+        //  Mark all except the primary key
+            if ($field==self::$_pk) continue;
+            $this->_fields_dirty[$field] = $field;
+        }
+    }   //  mark_all_dirty
+    
+    /**
+     * get_dirty_fields function.
+     * 
+     * Return all field names that contain dirty values.
+     *
+     * @access public
+     */
+    public function get_dirty_fields() {
+        return $this->_fields_dirty;
+    }   //  get_dirty_fields
+    
     /**
      * __isset function.
      * 

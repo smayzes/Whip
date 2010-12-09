@@ -286,6 +286,10 @@ class Db extends WhipPlugin {
                 $pdo_statement->execute( $query_values );
                 $pdo_statement->setFetchMode(PDO::FETCH_CLASS, $model_name);
                 $data = $pdo_statement->fetchAll();
+                foreach($data as $model) {
+                //  Mark model as clean
+                    $model->mark_all_clean();
+                }
             }
             catch(Exception $e) {
                 throw $e;
@@ -307,6 +311,10 @@ class Db extends WhipPlugin {
                 }
                 $pdo_statement->setFetchMode(PDO::FETCH_CLASS, $model_name);
                 $data = $pdo_statement->fetchAll();
+                foreach($data as $model) {
+                //  Mark model as clean
+                    $model->mark_all_clean();
+                }
             }
             catch(Exception $e) {
                 throw $e;
@@ -375,10 +383,18 @@ class Db extends WhipPlugin {
         if (is_numeric($model->$pk) && $model->$pk > 0) {
         //  Update
             $query_string = $query->build_update($model);
+            if (false===$query_string) {
+            //  No fields to update?
+                return false;
+            }
         }
         else {
         //  Insert
             $query_string = $query->build_insert($model);
+            if (false===$query_string) {
+            //  No fields to update?
+                return false;
+            }
             if ($this->_config['driver'] == 'pgsql') {
             //  Postgres:   RETURNING
                 $query_string .= ' RETURNING '.$model::$_pk;
@@ -407,6 +423,9 @@ class Db extends WhipPlugin {
             throw $e;
             return false;
         }
+    //  Success!
+    //  Mark model as clean
+        $model->mark_all_clean();
         return true;
     }   //  function save
     
