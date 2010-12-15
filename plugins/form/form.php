@@ -18,6 +18,10 @@ class Form extends WhipPlugin {
     private $_fields        = array();
     
     
+    public function Field() {
+        return new FormField();
+    }
+    
     
     public function add_field(FormField $field) {
         
