@@ -19,7 +19,7 @@ class Http extends SingletonWhipPlugin {
     const HTTP_TEMPORARY_REDIRECT = 307;
     
     
-    public function redirect($url, $code = self::HTTP_SEE_OTHER, $exit = true) {
+    public function redirect($url, $code = Http::HTTP_SEE_OTHER, $exit = true) {
         
         
         header('Location: '.$url, true, $code);
