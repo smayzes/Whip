@@ -194,7 +194,6 @@ class Db extends WhipPlugin {
     //  Execute the query straight up.
         try {
             $pdo_statement = $this->_link->query($query, PDO::FETCH_NUM);
-            $pdo_statement->execute();
             $pdo_statement->setFetchMode(PDO::FETCH_NUM);
             $data = $pdo_statement->fetch();
         }
