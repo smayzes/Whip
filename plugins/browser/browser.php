@@ -15,6 +15,7 @@ class Browser extends SingletonWhipPlugin {
     private $_ip = null;
     
     const DEVICE_IPAD       = 'ipad';
+    const DEVICE_IPOD       = 'ipod';
     const DEVICE_IPHONE     = 'iphone';
     const DEVICE_ANDROID    = 'android';
     const DEVICE_MOBILE     = 'mobile';     //  Generic mobile
@@ -68,10 +69,6 @@ class Browser extends SingletonWhipPlugin {
     //  Detect (some) mobile devices
         if (false !== strpos($user_agent, 'Mobile')) {
         //  Mobile
-            if (false !== strpos($user_agent, 'iPad')) {
-            //  iPhone
-                return Browser::DEVICE_IPAD;
-            }
             if (false !== strpos($user_agent, 'iPhone')) {
             //  iPhone
                 return Browser::DEVICE_IPHONE;
@@ -79,6 +76,14 @@ class Browser extends SingletonWhipPlugin {
             if (false !== strpos($user_agent, 'Android')) {
             //  Android 1.0+
                 return Browser::DEVICE_ANDROID;
+            }
+            if (false !== strpos($user_agent, 'iPad')) {
+            //  iPad
+                return Browser::DEVICE_IPAD;
+            }
+            if (false !== strpos($user_agent, 'iPod')) {
+            //  iPod
+                return Browser::DEVICE_IPOD;
             }
             return Browser::DEVICE_MOBILE;
         }   //  Mobile

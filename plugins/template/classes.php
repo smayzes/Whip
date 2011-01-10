@@ -89,6 +89,7 @@ class TemplateBlockFunction extends TemplateBlock {
     //  Trim token
         $token_parts        = trim(substr($token, 1, -1));
     //  Split function and parameters
+        $token_parts        = str_replace(Template::TOKEN_VARIABLE_KEYPAIR, ' ', $token_parts);
         $token_parts        = preg_split('/[\s]+/', $token_parts);
         $this->function     = array_shift($token_parts);
         $this->parameters   = $token_parts;

@@ -22,6 +22,7 @@ class Template extends WhipPlugin {
     const TOKEN_VARIABLE_VARIABLE_C = '}';
     const TOKEN_VARIABLE_DEFAULT    = '?';
     const TOKEN_VARIABLE_MODIFIER   = '|';
+    const TOKEN_VARIABLE_KEYPAIR    = '=>';
     
 //  Possible functions in the template
     const TOKEN_FUNCTION_IF         = 'if';
@@ -352,8 +353,9 @@ class Template extends WhipPlugin {
         //  Nothing to render
             return false;
         }
-        
-        if (3 == count($node->parameters)) {
+        $num_parameters = count($node->parameters);
+        switch ($num_parameters) {
+        case 3:
         //  Check if we need to use the "for .. in" or "for .. as" syntax
             if (self::TOKEN_FUNCTION_FOR_IN == $node->parameters[1]) {
             //  for .. in
@@ -371,17 +373,46 @@ class Template extends WhipPlugin {
                     $for_variable_name = substr($for_variable_name, 1);
                 }
             }   //  switch syntax
-            
         //  Loop through the values
             foreach ($for_values as &$for_value) {
                 $this->_context[$for_variable_name] = $for_value;
                 foreach($node->children as &$child) {
                     $this->_render_tree($child);
                 }   //  render each  child
-                
             }   //  each value
+            break;
             
-        }   //  if proper syntax
+        case 4:
+        //  Check if we need to use the "for .. in" or "for .. as" syntax
+            if (self::TOKEN_FUNCTION_FOR_AS == $node->parameters[1]) {
+            //  for .. as
+                $for_values = $this->_context($node->parameters[0]);
+                $for_key_name       = $node->parameters[2];
+                $for_variable_name  = $node->parameters[3];
+                if (self::TOKEN_VARIABLE == $for_variable_name[0]) {
+                    $for_variable_name = substr($for_variable_name, 1);
+                }
+                if (self::TOKEN_VARIABLE == $for_key_name[0]) {
+                    $for_key_name = substr($for_key_name, 1);
+                }
+            //  Loop through the values
+                foreach ($for_values as $for_key => &$for_value) {
+                    $this->_context[$for_variable_name] = $for_value;
+                    $this->_context[$for_key_name] = $for_key;
+                    foreach($node->children as &$child) {
+                        $this->_render_tree($child);
+                    }   //  render each  child
+                }   //  each value
+            }   //  switch syntax
+            else {
+            //@TODO: Incorrect syntax Exception?
+            }
+            break;
+            
+        default:
+        //@TODO: Incorrect syntax Exception?
+        
+        }   //  switch syntax
         
     }   //  function _render_for
     
