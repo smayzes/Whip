@@ -267,6 +267,7 @@ class Db extends WhipPlugin {
     //  Make sure we are connected
         if (!$this->_connect()) {
         //@TODO: Throw Exception!
+            throw new WhipPluginException('Could not connect to the database');
             return false;
         }
     //  Have we been passed:
@@ -324,8 +325,17 @@ class Db extends WhipPlugin {
         //  We have been passed a raw query string.
         //  Execute the query straight up.
             try {
+
                 $pdo_statement = $this->_link->query($query, PDO::FETCH_CLASS, $model_name);
                 if (false === $pdo_statement) {
+                    $error_code = $this->_link->errorCode();
+                    if ('00000' === $error_code) {
+                        throw new WhipPluginException('PDO cannot create model: '.$model_name);
+                    }
+                    else {
+                        $errorInfo = $this->_link->errorInfo();
+                        throw new WhipPluginException('PDO Error: '.$errorInfo[2]);
+                    }
                     return false;
                 }
                 //$pdo_statement->execute();
