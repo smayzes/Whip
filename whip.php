@@ -50,6 +50,7 @@ class Whip {
         require_once(self::$_config['path'].'core/exception.php');
         require_once(self::$_config['path'].'core/model.php');
         require_once(self::$_config['path'].'core/plugin.php');
+        require_once(self::$_config['path'].'core/controller.php');
     //  Mark Whip as initialized
         self::$_is_initialized = true;
     }   //  _initialize
@@ -196,7 +197,7 @@ class Whip {
      * @param mixed $n
      * @param mixed $default. (default: null)
      */
-    public static function gp($n, $default=null) {
+    public static function gp($n, $default=null, $regex=null) {
         if (isset($_POST[$n])) {
             $v = $_POST[$n];
         }
@@ -206,8 +207,66 @@ class Whip {
         else {
             $v = $default;
         }
+        if (null !== $regex && $v !== $default) {
+        //  ...
+            if (!preg_match('/'.$regex.'/', $v)) {
+                $v = $default;
+            }
+        }
         return $v;
     }   //  function gp
+    
+    /**
+     * get function.
+     *
+     * Get a GET variable
+     * 
+     * @access public
+     * @static
+     * @param mixed $n
+     * @param mixed $default. (default: null)
+     */
+    public static function get($n, $default=null, $regex=null) {
+        if (isset($_GET[$n])) {
+            $v = $_GET[$n];
+            if (null !== $regex) {
+            //  Check if it matches the regex
+                if (!preg_match('/'.$regex.'/', $v)) {
+                    $v = $default;
+                }
+            }
+        }
+        else {
+            $v = $default;
+        }
+        return $v;
+    }   //  function get
+    
+    /**
+     * post function.
+     *
+     * Get a POST variable
+     * 
+     * @access public
+     * @static
+     * @param mixed $n
+     * @param mixed $default. (default: null)
+     */
+    public static function post($n, $default=null, $regex=null) {
+        if (isset($_POST[$n])) {
+            $v = $_POST[$n];
+            if (null !== $regex) {
+            //  Check if it matches the regex
+                if (!preg_match('/'.$regex.'/', $v)) {
+                    $v = $default;
+                }
+            }
+        }
+        else {
+            $v = $default;
+        }
+        return $v;
+    }   //  function post
     
 
         

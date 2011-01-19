@@ -16,6 +16,10 @@ class TemplateModifierEscape extends TemplateModifier {
         return htmlentities($value);
     }   //  function html
     
+    public static function url($value) {
+        return urlencode($value);
+    }   //  function url
+    
 	public static function run($value) {
 	   return addslashes($value);
 	}  //  function run
