@@ -174,13 +174,13 @@ class Query extends UncachedWhipPlugin {
      * Add a WHERE ... LIKE clause
      */
     public function where_like($column_name, $value) {
-        return $this->where($column_name, $value, 'LIKE');
+        return $this->where($column_name, $value, ' LIKE ');
     }
     /**
      * Add a WHERE ... NOT LIKE clause
      */
     public function where_not_like($column_name, $value) {
-        return $this->where($column_name, $value, 'NOT LIKE');
+        return $this->where($column_name, $value, ' NOT LIKE ');
     }
     /**
      * Add a WHERE ... > clause
@@ -211,13 +211,13 @@ class Query extends UncachedWhipPlugin {
      * Add a WHERE ... IN clause
      */
     public function where_in($column_name, $values) {
-        return $this->where($column_name, $values, 'IN');
+        return $this->where($column_name, $values, ' IN ');
     }
     /**
      * Add a WHERE ... NOT IN clause
      */
     public function where_not_in($column_name, $values) {
-        return $this->where($column_name, $values, 'NOT IN');
+        return $this->where($column_name, $values, ' NOT IN ');
     }
     
     /**

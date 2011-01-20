@@ -37,6 +37,11 @@ abstract class WhipModel {
     public function __set($field, $value) {
         $class_name = get_called_class();
         if (in_array($field, $class_name::$_fields)) {
+        //  If new value equals old value, do nothing.
+        //  This prevents fields from being marked as dirty.
+            if (isset($this->_values[$field]) && $this->_values[$field] === $value) {
+                return;
+            }
         //  Set field value
             $this->_values[$field] = $value;
             if ($field != $class_name::$_pk) {
