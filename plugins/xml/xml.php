@@ -16,13 +16,15 @@ define('E_URL_NOT_XML',             'Failed to load well-formed XML with this ad
 define('E_XML_NOT_OBJECT',          'Failed to load XML data as an Object.');
 define('E_NAMESPACE_EMPTY',         'Failed to load a namespace');
 
-class Xml extends WhipPlugin {
+
+class Xml extends UncachedWhipPlugin {
+//class Xml extends WhipPlugin {
     public $urls;
 
 //  Cross-instance
     protected static $_require = array('Db', 'Query', 'Http');           //  array: names of plugins required to run this plugin
 
-    public function load($urls = array()) {
+    public function load($urls = array()) {    	
     // Check if the Urls paramater is an array
         if ( !is_array($urls) ) {
             $urls = array($urls);
@@ -34,7 +36,7 @@ class Xml extends WhipPlugin {
         // Check if Url loads
             if ( $code != 200 ) {
             // Url is not reachable
-                throw new WhipConfigException(E_URL_UNREACHABLE . ' ' . $url . ' HTTP Code: ' . $code );
+                throw new WhipConfigException(E_URL_UNREACHABLE . ' ' . $url . ' HTTP Code: ' . $code . ' ' . $headers[0]);
                 return false;
             }
             $this->urls[] = $url;
@@ -110,9 +112,6 @@ class Xml extends WhipPlugin {
             }
             $results[] = self::_parse_xml($xml);
         }
-        print "<pre>";
-        print_r($results);
-        die;
         return $results;
     }
     
@@ -140,37 +139,45 @@ class Xml extends WhipPlugin {
         $namespaces = array_merge(array('' => ''), self::_get_namespaces($xml));
         $count      = 0;
 
-        echo "<pre>";
-        
         foreach ( $namespaces as $ns => $ns_url) {
             $iteration = 0;
             foreach ($xml->children($ns_url) as $value) {
-                $element = $value->getName();
+                $element_name = $value->getName();
 
                 if ($value->children($ns_url)) {
-                    $results[$element][$count] = array();
-                    $results[$element][$count] = self::_parse_xml($value, $results[$element][$count]);
+                    $results[$element_name][$count] = array();
+                    $results[$element_name][$count] = self::_parse_xml($value, $results[$element_name][$count]);
                 }
                 else if ( $value->attributes() ) {
+                    if (!isset($results[$element_name])) {
+                        $results[$element_name] = array();
+                        $element = &$results[$element_name];
+                    }                    
+                    elseif (isset($results[$element_name]['attributes'])) {
+                    //  Already exists
+                        $results[$element_name] = array($results[$element_name]);
+                        $element = &$results[$element_name][];
+                    }
+                    
                     foreach ( $value->attributes() as $attribute => $attribute_value ) {
-                        $results[$element]['attributes'][$attribute] = (string) $attribute_value;
+                        $element['attributes'][$attribute] = (string) $attribute_value;
                         if ( count($value[0]) > 0 ) {
                              $results['value'][$iteration] = (string) $value;
                              $iteration++;
                         }
                     }
+                    $element['value'] = (string)  $value;
 
-                    $results[$element]['value'] = (string)  $value;
                 }
                 else {
-                    if (isset($results[$element]['value'])) {
+                    if (isset($results[$element_name]['value'])) {
                     //  Value with this name already exists.
                     //  Create an array
-                        $results[$element]['value'] = array($results[$element]['value']);
-                        $results[$element]['value'][] = (string) $value;
+                        $results[$element_name]['value'] = array($results[$element_name]['value']);
+                        $results[$element_name]['value'][] = (string) $value;
                     }
                     else {
-                        $results[$element]['value'] = (string) $value;
+                        $results[$element_name]['value'] = (string) $value;
                     }
                 }
                 $count++;
