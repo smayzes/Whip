@@ -174,13 +174,13 @@ class Query extends UncachedWhipPlugin {
      * Add a WHERE ... LIKE clause
      */
     public function where_like($column_name, $value) {
-        return $this->where($column_name, $value, ' LIKE ');
+        return $this->where($column_name, $value, 'LIKE');
     }
     /**
      * Add a WHERE ... NOT LIKE clause
      */
     public function where_not_like($column_name, $value) {
-        return $this->where($column_name, $value, ' NOT LIKE ');
+        return $this->where($column_name, $value, 'NOT LIKE');
     }
     /**
      * Add a WHERE ... > clause
@@ -211,13 +211,24 @@ class Query extends UncachedWhipPlugin {
      * Add a WHERE ... IN clause
      */
     public function where_in($column_name, $values) {
-        return $this->where($column_name, $values, ' IN ');
+        return $this->where($column_name, $values, 'IN');
     }
     /**
      * Add a WHERE ... NOT IN clause
      */
     public function where_not_in($column_name, $values) {
-        return $this->where($column_name, $values, ' NOT IN ');
+        return $this->where($column_name, $values, 'NOT IN');
+    }
+    /**
+     * Add a WHERE ... BETWEEN clause
+     */
+    public function where_between($column_name, $values) {
+        if (2 === count($values)) {
+            return $this->where($column_name, $values, 'BETWEEN');
+        }
+        else {
+            throw new WhipPluginException('where_between() expects an array of 2 values');
+        }
     }
     
     /**
@@ -463,21 +474,34 @@ class Query extends UncachedWhipPlugin {
         foreach($this->_where_conditions as $condition) {
             if (is_array($condition[self::WHERE_VALUE])) {
             //  Value is an array of values
-            //  Used for WHERE ... IN
-                $num_values = count($condition[self::WHERE_VALUE]);
-                $where_conditions[] =
-                    $this->_safe_name($condition[self::WHERE_FIELD]).
-                    $condition[self::WHERE_OPERATOR].
-                    '('.implode(',', array_fill(0, $num_values, self::PDO_PLACEHOLDER)).')';
-                foreach($condition[self::WHERE_VALUE] as $value) {
-                    $where_values[] = $value;
+                if ('BETWEEN' == $condition[self::WHERE_OPERATOR]) {
+                //  WHERE ... BETWEEN ... AND ...
+                    $num_values = count($condition[self::WHERE_VALUE]);
+                    $where_conditions[] =
+                        $this->_safe_name($condition[self::WHERE_FIELD]).
+                        ' '.$condition[self::WHERE_OPERATOR].' '.
+                        implode(' AND ', array_fill(0, $num_values, self::PDO_PLACEHOLDER));
+                    foreach($condition[self::WHERE_VALUE] as $value) {
+                        $where_values[] = $value;
+                    }
                 }
+                else {
+                //  WHERE ... IN
+                    $num_values = count($condition[self::WHERE_VALUE]);
+                    $where_conditions[] =
+                        $this->_safe_name($condition[self::WHERE_FIELD]).
+                        ' '.$condition[self::WHERE_OPERATOR].' '.
+                        '('.implode(',', array_fill(0, $num_values, self::PDO_PLACEHOLDER)).')';
+                    foreach($condition[self::WHERE_VALUE] as $value) {
+                        $where_values[] = $value;
+                    }
+                }   //  switch WHERE operator
             }
             else {
             //  Value is a plain basic value
                 $where_conditions[] =
                     $this->_safe_name($condition[self::WHERE_FIELD]).
-                    $condition[self::WHERE_OPERATOR].
+                    ' '.$condition[self::WHERE_OPERATOR].' '.
                     self::PDO_PLACEHOLDER;
                 $where_values[] = $condition[self::WHERE_VALUE];
             }
