@@ -108,6 +108,25 @@ class Template extends WhipPlugin {
     
     
     /**
+     * load_string function.
+     *
+     * Loads a string of template data.
+     * 
+     * @access public
+     * @param string $string
+     * @param array &$context. (default: array())
+     * @return void
+     */
+    public function load_string($string, &$context=array()) {
+    //  Load template data
+        $this->_template_data = $string;
+    //  Set context
+        $this->_context = $context;
+        return true;
+    }   //  function load_string
+    
+    
+    /**
      * render function.
      * 
      * @access public
