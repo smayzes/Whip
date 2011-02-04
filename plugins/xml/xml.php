@@ -34,14 +34,6 @@ class Xml extends UncachedWhipPlugin {
         }
     // Loop through array of Urls
         foreach ( $urls as $url ) {
-            $headers = Whip::Http()->online($url);
-            $code = substr($headers[0], 9, 3);
-        // Check if Url loads
-            if ( $code != 200 ) {
-            // Url is not reachable
-                throw new WhipConfigException(E_URL_UNREACHABLE . ' ' . $url . ' HTTP Code: ' . $code . ' ' . $headers[0]);
-                return false;
-            }
             $this->urls[] = $url;
         }
         return $this;
@@ -249,7 +241,10 @@ class Xml extends UncachedWhipPlugin {
     }
     
     private function _load_xml(&$url) {
-        $xml = simplexml_load_file($url, 'SimpleXMLElement', LIBXML_NOCDATA);
+    	$request = Whip::Http()->curl($url);
+    	    	
+    	$xml = simplexml_load_string($request, 'SimpleXMLElement', LIBXML_NOCDATA);
+        //$xml = simplexml_load_file($url, 'SimpleXMLElement', LIBXML_NOCDATA);
         if ( $xml !== false ) {
             return $xml;
         }
