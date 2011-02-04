@@ -220,11 +220,8 @@ class Template extends WhipPlugin {
                     $this->_render_tree($child);
                 }
             }
-        }
+        }   //  if instanceof TemplateBlockVariable / TemplateBlockFunction
         
-        
-
-
     }   //  function _render_tree
     
     
@@ -712,6 +709,7 @@ class Template extends WhipPlugin {
                 array_unshift($parameter, $value);
                 if (strpos($modifier_class_name, self::TOKEN_VARIABLE_SEPARATOR)) {
                 //  Custom modifier function name.
+                //  (separated by period, like: modifiername.functionname)
                     list($modifier_class_name, $modifier_function_name) = explode(
                         self::TOKEN_VARIABLE_SEPARATOR,
                         $modifier_class_name,
