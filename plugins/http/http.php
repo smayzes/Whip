@@ -11,7 +11,11 @@
  * @extends WhipPlugin
  */
 
-define('E_MISSING_VALUE', 'You are missing the following parameter: ');
+define('E_HTTP_MISSING_VALUE', 			'You are missing the following parameter: ');
+define('E_HTTP_MISSING_CURL',  			'Installation of PHP was not installed with curl.');
+define('E_HTTP_URL_UNREACHABLE',         'Failed to connect to the address.');
+define('E_HTTP_CURL_NOT_INIT', 			'PHP curl could not init the following address: ');
+define('E_HTTP_CURL_NOT_EXEC', 			'PHP curl could not exec the following address: ');
 
 class Http extends SingletonWhipPlugin {
     
@@ -25,6 +29,22 @@ class Http extends SingletonWhipPlugin {
     private $_url       = null;
     private $_agent     = "Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)";
     public  $urls		= array();
+    
+    public static $userAgents = array(
+        'FireFox3' 	=> 'Mozilla/5.0 (Windows; U; Windows NT 5.1; pl; rv:1.9) Gecko/2008052906 Firefox/3.0',
+        'GoogleBot' => 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+        'IE7' 		=> 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)',
+        'Netscape' 	=> 'Mozilla/4.8 [en] (Windows NT 6.0; U)',
+        'Opera' 	=> 'Opera/9.25 (Windows NT 6.0; U; en)'
+	);
+        
+    public static $options = array(
+        CURLOPT_USERAGENT 		=> 'Mozilla/5.0 (Windows; U; Windows NT 5.1; pl; rv:1.9) Gecko/2008052906 Firefox/3.0',
+        CURLOPT_AUTOREFERER 	=> true,
+        CURLOPT_COOKIEFILE 		=> '',
+        CURLOPT_FOLLOWLOCATION 	=> true
+	);
+    
     
     const HTTP_MOVED_PERMANENTLY = 301;
     const HTTP_FOUND = 302;
@@ -66,7 +86,7 @@ class Http extends SingletonWhipPlugin {
 	    	$headers = self::_get_headers($url);
 	    }
 	    else {
-	    	throw new WhipConfigException(E_MISSING_VALUE.'URL');
+	    	throw new WhipConfigException(E_HTTP_MISSING_VALUE.'URL');
             return false;
         }
 	    
@@ -143,7 +163,7 @@ class Http extends SingletonWhipPlugin {
     private function _get_headers($url) {
     // Check if we are passed a URL paramater
     	if ( !isset($url) ) {
-	    	throw new WhipConfigException(E_MISSING_VALUE.'URLS');
+	    	throw new WhipConfigException(E_HTTP_MISSING_VALUE.'URLS');
             return false;
         }
     // Return the URLs header information
@@ -170,6 +190,32 @@ class Http extends SingletonWhipPlugin {
                 'page'      => $page,
                 'http_code' => $http_code,
                 );
+    }
+    
+    public function curl($url) {
+    // Check if Curl is installed
+    	if ( !function_exists('curl_init') ) {
+			throw new WhipConfigException(E_HTTP_MISSING_CURL);
+			return false;
+		}
+		
+		if ( ($ch = curl_init($url)) == false) {
+			throw new WhipConfigException(E_HTTP_CURL_NOT_INIT . $url);
+			return false;
+        }
+		
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt_array($ch, self::$options);
+        
+        $content = curl_exec($ch);
+        if ( $content === false ) {
+        	throw new WhipConfigException(E_HTTP_CURL_NOT_INIT . $url);
+			return false;
+        }
+       
+        curl_close($ch);
+       
+        return $content;
     }
 
 }   //  class Http
