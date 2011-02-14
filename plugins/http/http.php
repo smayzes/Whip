@@ -192,7 +192,7 @@ class Http extends SingletonWhipPlugin {
                 );
     }
     
-    public function curl($url) {
+    public function curl($url, $options = null) {
     // Check if Curl is installed
     	if ( !function_exists('curl_init') ) {
 			throw new WhipConfigException(E_HTTP_MISSING_CURL);
