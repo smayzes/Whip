@@ -13,7 +13,8 @@ class TemplateModifierEscape extends TemplateModifier {
     }   //  function js
     
     public static function html($value) {
-        return htmlentities($value);
+        //return htmlentities($value,ENT_COMPAT);
+        return htmlspecialchars($value,ENT_COMPAT);
     }   //  function html
     
     public static function url($value) {

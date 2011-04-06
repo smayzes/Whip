@@ -390,12 +390,24 @@ class Template extends WhipPlugin {
                 }
             }   //  switch syntax
         //  Loop through the values
-            foreach ($for_values as &$for_value) {
-                $this->_context[$for_variable_name] = $for_value;
-                foreach($node->children as &$child) {
-                    $this->_render_tree($child);
-                }   //  render each  child
-            }   //  each value
+            if (is_numeric($for_values)) {
+            //  Numeric for... loop
+                for ($idx_for=1; $idx_for<=$for_values; ++$idx_for) {
+                    $this->_context[$for_variable_name] = $idx_for;
+                    foreach($node->children as &$child) {
+                        $this->_render_tree($child);
+                    }   //  render each  child
+                }   //  each value
+            }
+            else {
+            //  Normal for... loop
+                foreach ($for_values as &$for_value) {
+                    $this->_context[$for_variable_name] = $for_value;
+                    foreach($node->children as &$child) {
+                        $this->_render_tree($child);
+                    }   //  render each  child
+                }   //  each value
+            }
             break;
             
         case 4:
@@ -452,9 +464,10 @@ class Template extends WhipPlugin {
         $len_config_path = strlen($this->_config['path']);
         if ($this->_template_path != $this->_config['path']) {
         //  Check current template's template path
-            $include_path = Whip::real_path($this->_template_path.$filename);
+            $include_path = Whip::real_path($this->_template_path);
             if (substr($include_path, 0, $len_config_path) != $this->_config['path']) {
             //  Trying to load a template outside of the template path
+                echo '$node->parameters[0] = '.$node->parameters[0].'<br />';
                 echo 'config path = '.$this->_config['path'].'<br />';
                 echo '$len_config_path = '.$len_config_path.'<br />';
                 echo '$include_path = '.$include_path.'<br />';

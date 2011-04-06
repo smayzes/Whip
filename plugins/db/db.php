@@ -70,12 +70,21 @@ class Db extends WhipPlugin {
             throw new WhipConfigException(E_CONFIG_MISSING_VALUE.'password');
             return false;
         }
+        $options = array();
+        if ('mysql' === $this->_config['driver']) {
+            $options[PDO::MYSQL_ATTR_INIT_COMMAND] = "SET NAMES utf8";
+        }
+        
     //  Connect
         $dsn = $this->_config['driver'].
             ':host='.$this->_config['host'].
             ';port='.$this->_config['port'].
             ';dbname='.$this->_config['dbname'];
-        $this->_link = new PDO($dsn, $this->_config['username'], $this->_config['password']);
+        $this->_link = new PDO(
+            $dsn,
+            $this->_config['username'],
+            $this->_config['password'],
+            $options);
         $this->_link->setAttribute(
             PDO::ATTR_ERRMODE,
             PDO::ERRMODE_EXCEPTION
@@ -278,6 +287,7 @@ class Db extends WhipPlugin {
         //  We have been passed a query class.
         //  Prepare and execute the query.
             $query_string = $query->build_select($model_name);
+            //echo $query_string;
             $query_values = $query->get_values();
         //  Prepare SQL statement
             $pdo_statement = $this->_link->prepare($query_string);

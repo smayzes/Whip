@@ -535,7 +535,9 @@ class Query extends UncachedWhipPlugin {
             return false;
         }
     //  Enquote
-        return '"'.$column_or_table_name.'"';
+        //  This screws with MySQL, as MySQL uses ` instead of "
+        //return '"'.$column_or_table_name.'"';
+        return $column_or_table_name;
     }   //  _safe_name    
     
 }   //  class Query
