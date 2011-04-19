@@ -229,7 +229,7 @@ class Db extends WhipPlugin {
      * @access public
      * @param string $query
      */
-    public function execute($query) {
+    public function execute($query, array $params=null) {
     //  Make sure we are connected
         if (!$this->_connect()) {
         //@TODO: Throw Exception!
@@ -244,7 +244,14 @@ class Db extends WhipPlugin {
     //  We have been passed a raw query string.
     //  Execute the query straight up.
         try {
-            $pdo_statement = $this->_link->exec($query);
+            if (null!==$params) {
+                $pdo_statement = $this->_link->prepare($query);
+                $pdo_statement->execute($params);
+            }
+            else {
+                $pdo_statement = $this->_link->exec($query);
+            }
+            
         }
         catch(Exception $e) {
             throw $e;
@@ -447,6 +454,26 @@ class Db extends WhipPlugin {
         $model->mark_all_clean();
         return true;
     }   //  function save
+    
+    
+    /**
+     * escape function.
+     * 
+     * @access public
+     * @param mixed $value
+     * @return void
+     */
+    public function escape($value) {
+        if (!$this->_connect()) {
+        //@TODO: Throw Exception!
+            return false;
+        }
+        return $this->_link->quote($value);
+    }   //  function escape
+    
+    public function quote($value) {
+        return $this->escape($value);
+    }
     
     
     
