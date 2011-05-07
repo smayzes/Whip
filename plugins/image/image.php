@@ -8,7 +8,7 @@
  * Copyright (c) 2010 Menno van Ens (codefocus.ca) and Shawn Mayzes (mayzes.org)
  * Released under the GNU General Public License, Version 3 
  *
- * @extends WhipPlugin
+ * @extends SingletonWhipPlugin
  */
 
 define('IMAGE_RESIZE_FILL',         0x1001);

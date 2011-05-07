@@ -459,6 +459,38 @@ class Template extends WhipPlugin {
             null,
             true
         );
+    //  If the filename starts with /,
+    //  assume base path.
+        if ('/' === $filename[0]) {
+        //  Use base path
+            $filename = substr($filename, 1);
+            $path = $this->_config['path'];
+        }
+        else {
+        //  Use current path
+            $path = $this->_template_path;
+        }
+    //  Build the complete path from which to load the template
+        $template_filename = Whip::real_path($path.$filename);
+    //  Make sure this path is inside the config template path
+        $include_path = Whip::real_path(dirname($template_filename));
+        $len_config_path = strlen($this->_config['path']);
+        if (substr($include_path, 0, $len_config_path) != $this->_config['path']) {
+            throw new WhipPluginException('Cannot load a template outside of the template path: "'.$filename.'"');
+        }
+        elseif (file_exists($template_filename)) {
+        //  Template exists
+        //  Include the template file
+            Whip::Template($filename)->render(
+                substr($template_filename, $len_config_path),
+                $this->_context
+            );
+        }
+        else {
+        //  Template does not exist
+            throw new WhipPluginException('Template not found: "'.$filename.'"');
+        }
+        /*
     //  If current template's path differs from config template path,
     //  check current template's path first
         $len_config_path = strlen($this->_config['path']);
@@ -478,7 +510,10 @@ class Template extends WhipPlugin {
             elseif (file_exists($include_path)) {
             //  Template exists
             //  Include the template file
-                Whip::Template($filename)->render( substr($include_path, $len_config_path), $this->_context );
+                Whip::Template($filename)->render(
+                    substr($include_path, $len_config_path) . basename($filename),
+                    $this->_context
+                );
             }
             return;
         }   //  if template path differs from config template path
@@ -494,6 +529,7 @@ class Template extends WhipPlugin {
         }
     //  Include the template file
         Whip::Template($filename)->render( substr($include_path, $len_config_path), $this->_context );
+        */
     }   //  function _render_include
     
     
