@@ -35,6 +35,8 @@ class Image extends SingletonWhipPlugin {   //  uncached
 *
 */
     public function load($filename) {
+    #   Reset
+        $this->_reset();
     #   Get supported image types
         $supported_types        = imagetypes();
     #   Try loading as JPEG
@@ -78,7 +80,8 @@ class Image extends SingletonWhipPlugin {   //  uncached
 *
 */
     public function create($width, $height, $color='FFFFFF', $transparent=false) {
-    //  TODO:   clear existing images
+    //  Reset
+        $this->_reset();
     
         $im                 = imagecreatetruecolor($width, $height);
         imagesavealpha($im, true);
@@ -393,6 +396,19 @@ class Image extends SingletonWhipPlugin {   //  uncached
         }
         return true;
     }   //  _getdimensions
+    
+    
+    
+    private function _reset() {
+        if (is_resource($this->img_original)) {
+            imagedestroy($this->img_original);
+        }
+        if (is_resource($this->img_modified)) {
+            imagedestroy($this->img_modified);
+        }
+        $this->_dim_original = null;
+        $this->_dim_modified = null;
+    }   //  _reset
     
     
     private function &_getworkingimage() {

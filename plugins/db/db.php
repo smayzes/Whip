@@ -271,7 +271,7 @@ class Db extends WhipPlugin {
      * @param mixed $query
      * @return void
      */
-    public function get_all($model_name, $query) {
+    public function get_all($model_name, $query=null) {
     //  Make sure the model exists
         try {
             Whip::model($model_name);
@@ -321,6 +321,27 @@ class Db extends WhipPlugin {
                 ' FROM '.$model_name::$_table.
                 ' WHERE '.$model_name::$_pk.'='.((int)$query).
                 ' LIMIT 1';
+            try {
+                $pdo_statement = $this->_link->query($query_string, PDO::FETCH_CLASS, $model_name);
+                if (false === $pdo_statement) {
+                    return false;
+                }
+                $pdo_statement->setFetchMode(PDO::FETCH_CLASS, $model_name);
+                $data = $pdo_statement->fetchAll();
+                foreach($data as $model) {
+                //  Mark model as clean
+                    $model->mark_all_clean();
+                }
+            }
+            catch(Exception $e) {
+                throw $e;
+                return false;
+            }
+        }
+        elseif(null===$query) {
+        //  We have not been passed any type of query.
+        //  Retrieve ALL model instances from database.
+            $query_string = 'SELECT * FROM '.$model_name::$_table;
             try {
                 $pdo_statement = $this->_link->query($query_string, PDO::FETCH_CLASS, $model_name);
                 if (false === $pdo_statement) {
