@@ -31,7 +31,7 @@ class Whip {
         }
     //  merge configuration array
         if (is_array($config)) {
-            array_merge(self::$_config, $config);
+            self::$_config = array_merge(self::$_config, $config);
         }
     }   //  __construct
     
@@ -66,7 +66,7 @@ class Whip {
      */
     public static function get_instance(array $config=array()) {
         if (!self::$_instance instanceof Whip) {
-            self::$_instance = new Whip();
+            self::$_instance = new Whip($config);
         }
         return self::$_instance;
     }   //  get_instance
@@ -268,7 +268,24 @@ class Whip {
         return $v;
     }   //  function post
     
-
+    
+    /**
+     * is_dev function.
+     *
+     * Returns true if Whip runs in a dev environment
+     * (set via $config['Whip']['dev'])
+     * 
+     * @access public
+     * @static
+     * @return void
+     */
+    public static function is_dev() {
+        return (bool)(
+            is_array(self::$_config) &&
+            isset(self::$_config['dev']) &&
+            true === self::$_config['dev']
+        );
+    }   //  function is_dev
+    
         
 }   //  class Whip
-

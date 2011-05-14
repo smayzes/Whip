@@ -187,7 +187,7 @@ class Db extends WhipPlugin {
      * @access public
      * @param string $query
      */
-    public function get_field($query) {
+    public function get_field($query, array $params=null) {
     //  Make sure we are connected
         if (!$this->_connect()) {
         //@TODO: Throw Exception!
@@ -202,12 +202,27 @@ class Db extends WhipPlugin {
     //  We have been passed a raw query string.
     //  Execute the query straight up.
         try {
-            $pdo_statement = $this->_link->query($query, PDO::FETCH_NUM);
+            if (null!==$params) {
+                $pdo_statement = $this->_link->prepare($query);
+                $pdo_statement->execute($params);
+            }
+            else {
+                $pdo_statement = $this->_link->query($query, PDO::FETCH_NUM);
+            }
             $pdo_statement->setFetchMode(PDO::FETCH_NUM);
             $data = $pdo_statement->fetch();
         }
         catch(Exception $e) {
-            throw $e;
+            if (Whip::is_dev()) {
+            //  In a development environment,
+            //  show the query that caused the exception.
+                throw new WhipPluginException(
+                    $e->getMessage()."\r\nQuery:\r\n".$query."\r\n"
+                );
+            }
+            else {
+                throw $e;
+            }
             return false;
         }
     //  Return data
@@ -381,8 +396,16 @@ class Db extends WhipPlugin {
                 $data = $pdo_statement->fetchAll();
             }
             catch(Exception $e) {
-                throw $e;
-                return false;
+                if (Whip::is_dev()) {
+                //  In a development environment,
+                //  show the query that caused the exception.
+                    throw new WhipPluginException(
+                        $e->getMessage()."\r\nQuery:\r\n".$query."\r\n"
+                    );
+                }
+                else {
+                    throw $e;
+                }
             }
             //  TODO: Fetch data and stmt->closeCursor
         }

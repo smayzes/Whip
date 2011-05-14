@@ -150,6 +150,31 @@ abstract class WhipModel {
         return $this->_fields_dirty;
     }   //  get_dirty_fields
     
+    
+    /**
+     * is_dirty function.
+     * 
+     * @access public
+     * @return bool
+     */
+    public function is_dirty() {
+        if (is_array($this->_fields_dirty) && count($this->_fields_dirty) > 0) {
+            return true;
+        }
+        return false;
+    }   //  is_dirty
+    
+    /**
+     * is_clean function.
+     * 
+     * @access public
+     * @return bool
+     */
+    public function is_clean() {
+        return !$this->is_dirty();
+    }   //  is_clean
+    
+    
     /**
      * __isset function.
      * 
