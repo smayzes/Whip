@@ -32,6 +32,7 @@ class Template extends WhipPlugin {
     const TOKEN_FUNCTION_FOR_IN     = 'in';
     const TOKEN_FUNCTION_FOR_AS     = 'as';
     const TOKEN_FUNCTION_INCLUDE    = 'include';
+    const TOKEN_FUNCTION_I18N       = 'i18n';       //  experimental!
 //  Prefix for function end tags
     const TOKEN_FUNCTION_END        = 'end';
     
@@ -196,12 +197,17 @@ class Template extends WhipPlugin {
             //  FOR
                 $this->_render_for($node);
                 break;
-                                    
+                
             case self::TOKEN_FUNCTION_INCLUDE:
             //  INCLUDE
                 $this->_render_include($node);
                 break;
-            
+                
+            case self::TOKEN_FUNCTION_I18N:
+            //  INTERNATIONALIZATION
+                $this->_render_i18n($node);
+                break;
+                
             default:
             //  ELSE / other
                 if (isset($node->children)) {
@@ -490,47 +496,24 @@ class Template extends WhipPlugin {
         //  Template does not exist
             throw new WhipPluginException('Template not found: "'.$filename.'"');
         }
-        /*
-    //  If current template's path differs from config template path,
-    //  check current template's path first
-        $len_config_path = strlen($this->_config['path']);
-        if ($this->_template_path != $this->_config['path']) {
-        //  Check current template's template path
-            $include_path = Whip::real_path($this->_template_path);
-            if (substr($include_path, 0, $len_config_path) != $this->_config['path']) {
-            //  Trying to load a template outside of the template path
-                echo '$node->parameters[0] = '.$node->parameters[0].'<br />';
-                echo 'config path = '.$this->_config['path'].'<br />';
-                echo '$len_config_path = '.$len_config_path.'<br />';
-                echo '$include_path = '.$include_path.'<br />';
-                echo '$this->_template_path = '.$this->_template_path.'('.$this->_template_filename.')<br />';
-                echo '$filename = '.$filename.'<br />';
-                throw new WhipPluginException('Cannot load a template outside of the template path: "'.$filename.'"');
-            }
-            elseif (file_exists($include_path)) {
-            //  Template exists
-            //  Include the template file
-                Whip::Template($filename)->render(
-                    substr($include_path, $len_config_path) . basename($filename),
-                    $this->_context
-                );
-            }
-            return;
-        }   //  if template path differs from config template path
-    //  Check config template path
-        $include_path = Whip::real_path($this->_config['path'].$filename);
-        if (substr($include_path, 0, $len_config_path) != $this->_config['path']) {
-        //  Trying to load a template outside of the template path
-            throw new WhipPluginException('Cannot load a template outside of the template path: "'.$filename.'"');
-        }
-        elseif (!file_exists($include_path)) {
-        //  Template does not exist
-            throw new WhipPluginException('Template not found: "'.$filename.'"');
-        }
-    //  Include the template file
-        Whip::Template($filename)->render( substr($include_path, $len_config_path), $this->_context );
-        */
     }   //  function _render_include
+    
+    
+    /**
+     * _render_include function.
+     * 
+     * @access private
+     * @param mixed &$node
+     */
+    private function _render_i18n(&$node) {
+    //  NOTE:   The i18n modifier DOES NOT CURRENTLY EXIST outside of a private website!
+    //          A Whip plugin is currently being developed.
+        $text = implode(' ', $node->parameters);
+        $modifier_class_name = $this->_load_modifier('i18n');
+    //  Execute the modifier
+        $value = call_user_func_array($modifier_class_name.'::run', array($text));
+        echo $value;
+    }   //  function _render_i18n
     
     
     /**
@@ -682,6 +665,12 @@ class Template extends WhipPlugin {
                     break;
                                         
                 case self::TOKEN_FUNCTION_INCLUDE:
+                //  INCLUDE (same level)
+                    //$stack[0]->children[]   = $block;
+                    $stack[0]->add_child($block);
+                    break;
+                    
+                case self::TOKEN_FUNCTION_I18N:
                 //  INCLUDE (same level)
                     //$stack[0]->children[]   = $block;
                     $stack[0]->add_child($block);

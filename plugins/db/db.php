@@ -237,6 +237,60 @@ class Db extends WhipPlugin {
     
     
     /**
+     * get_raw function.
+     *
+     * Returns raw query result.
+     * 
+     * @access public
+     * @param string $query
+     */
+    public function get_raw($query, array $params=null) {
+    //  Make sure we are connected
+        if (!$this->_connect()) {
+        //@TODO: Throw Exception!
+            return false;
+        }
+    //  ...
+        if (!is_string($query)) {
+        //  We have not been passed a string.
+            //@TODO: Throw exception!
+            return false;
+        }
+    //  We have been passed a raw query string.
+    //  Execute the query straight up.
+        try {
+            if (null!==$params) {
+                $pdo_statement = $this->_link->prepare($query);
+                $pdo_statement->execute($params);
+            }
+            else {
+                $pdo_statement = $this->_link->query($query, PDO::FETCH_NUM);
+            }
+            $pdo_statement->setFetchMode(PDO::FETCH_NUM);
+            $data = $pdo_statement->fetchAll();
+        }
+        catch(Exception $e) {
+            if (Whip::is_dev()) {
+            //  In a development environment,
+            //  show the query that caused the exception.
+                throw new WhipPluginException(
+                    $e->getMessage()."\r\nQuery:\r\n".$query."\r\n"
+                );
+            }
+            else {
+                throw $e;
+            }
+            return false;
+        }
+    //  Return data
+        if (isset($data)) {
+            return $data;
+        }
+        return false;
+    }   //  function get_raw
+    
+    
+    /**
      * execute function.
      *
      * Executes a query.
@@ -286,7 +340,7 @@ class Db extends WhipPlugin {
      * @param mixed $query
      * @return void
      */
-    public function get_all($model_name, $query=null) {
+    public function get_all($model_name, $query=null, array $params=null) {
     //  Make sure the model exists
         try {
             Whip::model($model_name);
@@ -379,7 +433,7 @@ class Db extends WhipPlugin {
         //  Execute the query straight up.
             try {
 
-                $pdo_statement = $this->_link->query($query, PDO::FETCH_CLASS, $model_name);
+                $pdo_statement = $this->_link->prepare($query);
                 if (false === $pdo_statement) {
                     $error_code = $this->_link->errorCode();
                     if ('00000' === $error_code) {
@@ -391,7 +445,7 @@ class Db extends WhipPlugin {
                     }
                     return false;
                 }
-                //$pdo_statement->execute();
+                $pdo_statement->execute($params);
                 $pdo_statement->setFetchMode(PDO::FETCH_CLASS, $model_name);
                 $data = $pdo_statement->fetchAll();
             }
@@ -515,10 +569,18 @@ class Db extends WhipPlugin {
         return $this->_link->quote($value);
     }   //  function escape
     
+    
+    /**
+     * quote function.
+     * Alias for escape()
+     * 
+     * @access public
+     * @param mixed $value
+     * @return void
+     */
     public function quote($value) {
         return $this->escape($value);
     }
-    
     
     
 }   //  Db

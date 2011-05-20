@@ -22,6 +22,7 @@ class Pagination extends WhipPlugin {
     private $num_pages      = 0;
     private $is_ready       = false;
     private $pages          = array();
+    private $urls           = array();
   
 /*
 **  Property get
@@ -29,7 +30,7 @@ class Pagination extends WhipPlugin {
     public function __get($property) {
     #   Make sure pages array has been generated
         if (!$this->is_ready) {
-            $this->_generate();
+            $this->generate();
         }
     #   Return the requested property
         switch($property) {
@@ -93,6 +94,11 @@ class Pagination extends WhipPlugin {
             return $this->_config['url'];
             break;
             
+        case 'urls':
+        #   Get page urls
+            return $this->urls;
+            break;
+            
         case 'display_from':
         #   "Displaying results 1 to 9 of 373"
             return ($this->_config['results_per_page'] * ($this->_config['page']-1)) + 1;
@@ -126,6 +132,7 @@ class Pagination extends WhipPlugin {
             'sql_offset',
             'offset',
             'url',
+            'urls',
             'display_from',
             'display_to',
         );
@@ -178,11 +185,13 @@ class Pagination extends WhipPlugin {
     public function generate() {
     #   Generate paging
         $this->pages = array();
+        $this->urls = array(null);
         $this->num_pages = ceil($this->_config['num_results'] / $this->_config['results_per_page']);
     #   Empty paging?
         if ($this->num_pages<=1) {
             $this->num_pages = 1;
             $this->pages[] = 1;
+            $this->urls[] = $this->_generate_url(1);
             $this->_config['page'] = 1;
         #   READY!
             $this->is_ready = true;
@@ -206,6 +215,7 @@ class Pagination extends WhipPlugin {
             $page<$this->num_pages
         ) {
             $this->pages[] = $page;
+            $this->urls[] = $this->_generate_url($page);
             ++$page;
         }
         if ($this->_config['page']>$this->_config['max_outside']) {
@@ -213,10 +223,12 @@ class Pagination extends WhipPlugin {
             
             if ($page < ($this->_config['page']-$this->_config['max_adjecent']-1)) {
                 $this->pages[] = false;
+                $this->urls[] = false;
                 $page = $this->_config['page']-$this->_config['max_adjecent'];
             }
             while ($page<=($this->_config['page']+$this->_config['max_adjecent']) && $page<$this->num_pages) {
                 $this->pages[] = $page;
+                $this->urls[] = $this->_generate_url($page);
                 ++$page;
             }
         }
@@ -228,21 +240,42 @@ class Pagination extends WhipPlugin {
                 $page<$this->num_pages
             ) {
                 $this->pages[] = $page;
+                $this->urls[] = $this->_generate_url($page);
                 ++$page;
             }
         }
     #   Right segment
         if ($page<($this->num_pages-$this->_config['max_outside'])) {
             $this->pages[] = false;
+            $this->urls[] = false;
             $page = $this->num_pages-$this->_config['max_outside']+1;
         }
         while ($page<=$this->num_pages) {
             $this->pages[] = $page;
+            $this->urls[] = $this->_generate_url($page);
             ++$page;
         }
     #   READY!
         $this->is_ready = true;
     }   //  function generate
+    
+    
+    
+    private function _generate_url($page) {
+        if (1 == $page) {
+        //  First page
+            return $this->_config['url'];
+        }
+        
+        if (false !== strpos($this->_config['url'], '?')) {
+        //  Has query string already
+            return $this->_config['url'].'&amp;p='.$page;
+        }
+        else {
+        //  Has no query string yet
+            return $this->_config['url'].'?p='.$page;
+        }
+    }   //  function _generate_url
     
     
 }   // class pagination
