@@ -192,7 +192,9 @@ class Pagination extends WhipPlugin {
             $this->num_pages = 1;
             $this->pages[] = 1;
             $this->urls[] = $this->_generate_url(1);
-            $this->_config['page'] = 1;
+            if (!isset($this->_config['page']) || !$this->_config['page']) {
+                $this->_config['page'] = 1;
+            }
         #   READY!
             $this->is_ready = true;
             return;
@@ -205,7 +207,8 @@ class Pagination extends WhipPlugin {
             $this->_config['page'] = 1;
         }
         elseif ($this->_config['page']>$this->num_pages) {
-            $this->_config['page'] = $this->num_pages;
+        //  This is allowed
+            //$this->_config['page'] = $this->num_pages;
         }
     #   Left segment
         $page = 1;
