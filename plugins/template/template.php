@@ -136,8 +136,12 @@ class Template extends WhipPlugin {
      */
     public function render($template_filename=null, array $context=array(), $return=false) {
     //  Load template if necessary
-        if ($template_filename!=null) {
+        if (null != $template_filename) {
             $this->load($template_filename, $context);
+        }
+        elseif (null != $context) {
+        //  Set context
+            $this->_context = $context;
         }
         
     //  Start output buffering
