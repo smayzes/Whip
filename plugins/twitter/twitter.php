@@ -2879,4 +2879,3 @@ class Twitter extends UncachedWhipPlugin  {
 	}
 }
 
-?>
