@@ -3,6 +3,7 @@
     if (!class_exists('OAuth')) {
         throw new WhipPluginException('OAuth extension required.');
     }
+    require_once(__DIR__.'/models.php');
     
 /**
  * Dropbox plugin.
@@ -25,6 +26,14 @@ class Dropbox extends WhipPlugin {
     const HTTP_FORBIDDEN        = 403;
     const HTTP_NOT_FOUND        = 404;
     const HTTP_OVER_QUOTA       = 507;
+    
+    const THUMBNAIL_SIZE_SMALL  = 'small';
+    const THUMBNAIL_SIZE_MEDIUM = 'medium';
+    const THUMBNAIL_SIZE_LARGE  = 'large';
+    
+    const THUMBNAIL_FORMAT_JPEG = 'JPEG';
+    const THUMBNAIL_FORMAT_PNG  = 'PNG';
+    
     const DROPBOX_API_URL       = 'http://api.dropbox.com/0';
     const DROPBOX_CONTENT_URL   = 'http://api-content.dropbox.com/0';
     const ROOT_SANDBOX          = 'sandbox';
@@ -32,6 +41,18 @@ class Dropbox extends WhipPlugin {
     
     private $_oauth = null;
     private $_root  = self::ROOT_DROPBOX;
+    
+    /**
+     * set_root function.
+     * Override the default dropbox root
+     * 
+     * @access public
+     * @param mixed $root
+     * @return void
+     */
+    public function set_root($root) {
+        $this->_root = trim($root, '/');
+    }   //  function set_root
     
     
     /**
@@ -42,15 +63,51 @@ class Dropbox extends WhipPlugin {
      * @param mixed $folder
      * @return array
      */
-    public function list_files($path='', $root=null) {
-    //  Determine root
-        if (is_null($root)) {
-            $root = $this->_root;
-        }
+    public function list_files($path='') {
     //  Perform REST call
-        $rest_url   = self::DROPBOX_API_URL.'/metadata/'.trim($root, '/').'/'.ltrim($path,'/');
+        $rest_url   = self::DROPBOX_API_URL.'/metadata/'.$this->_root.'/'.$this->_dropbox_path($path);
         $result     = $this->_fetch($rest_url);
-        return json_decode($result['body']);
+        $body       = json_decode($result['body']);
+        if (is_object($body) && $body->contents) {
+            return $this->_whipify_files($body->contents);
+        }
+        return false;
+    }   //  function list_files
+    
+    /**
+     * list_image_files function.
+     * List all image files in a dropbox folder
+     * 
+     * @access public
+     * @param mixed $folder
+     * @return array
+     */
+    public function list_image_files($path='') {
+    //  Perform REST call
+        $rest_url   = self::DROPBOX_API_URL.'/metadata/'.$this->_root.'/'.$this->_dropbox_path($path);
+        $result     = $this->_fetch($rest_url);
+        $body       = json_decode($result['body']);
+        if (is_object($body) && $body->contents) {
+            return $this->_whipify_files($body->contents, true);
+        }
+        return false;
+    }   //  function list_image_files
+    
+    /**
+     * file_information function.
+     * List all files in a dropbox folder
+     * 
+     * @access public
+     * @param mixed $folder
+     * @return array
+     */
+    public function file_information($path='') {
+    //  Perform REST call
+        $rest_url   = self::DROPBOX_API_URL.'/metadata/'.$this->_root.'/'.$this->_dropbox_path($path);
+        $result     = $this->_fetch($rest_url);
+        $body       = json_decode($result['body']);
+        return $this->_whipify_file($body);
+        return false;
     }   //  function list_files
     
     
@@ -102,15 +159,34 @@ class Dropbox extends WhipPlugin {
      * @param mixed $root. (default: null)
      * @return string
      */
-    public function get_file($path = '', $root = null) {
-    //  Determine root
-        if (is_null($root)) {
-            $root = $this->_root;
-        }
-        $rest_url   = self::DROPBOX_CONTENT_URL.'files/'.trim($root, '/').'/'.ltrim($path,'/');
-        $result     = $this->oauth->fetch($rest_url);
+    public function get_file($path='') {
+        $rest_url   = self::DROPBOX_CONTENT_URL.'/files/'.$this->_root.'/'.$this->_dropbox_path($path);
+        $result     = $this->_fetch($rest_url);
         return $result['body'];
     }   //  function get_file
+    
+    
+    /**
+     * get_thumbnail function.
+     * Get a file's thumbnail
+     * 
+     * @access public
+     * @param string $path. (default: '')
+     * @param string $size. (default: THUMBNAIL_SIZE_SMALL)
+     * @param string $format. (default: THUMBNAIL_FORMAT_JPEG)
+     * @return string
+     */
+    public function get_thumbnail($path='', $size=self::THUMBNAIL_SIZE_SMALL, $format=self::THUMBNAIL_FORMAT_JPEG) {
+        $rest_url   = self::DROPBOX_CONTENT_URL.'/thumbnails/'.$this->_root.'/'.$this->_dropbox_path($path);
+        $result     = $this->_fetch(
+            $rest_url,
+            array(
+                'size'      => $size,
+                'format'    => $format,
+            )
+        );
+        return $result['body'];
+    }   //  function get_thumbnail
     
     
     /**
@@ -123,11 +199,7 @@ class Dropbox extends WhipPlugin {
      * @param string $root Use this to override the default root path (sandbox/dropbox) 
      * @return array|true 
      */
-    public function get_meta_data($path, $list=true, $hash=null, $fileLimit=null, $root=null) {
-    //  Determine root
-        if (is_null($root)) {
-            $root = $this->_root;
-        }
+    public function get_meta_data($path, $list=true, $hash=null, $fileLimit=null) {
         $args = array(
             'list' => $list,
         );
@@ -137,7 +209,7 @@ class Dropbox extends WhipPlugin {
         if (!is_null($fileLimit)) {
             $args['file_limit'] = $hash;
         }
-        $rest_url   = self::DROPBOX_API_URL.'metadata/'.trim($root, '/').'/'.ltrim($path, '/');
+        $rest_url   = self::DROPBOX_API_URL.'metadata/'.$this->_root.'/'.$this->_dropbox_path($path);
         $response   = $this->_fetch($rest_url, $args);
         if ($response['httpStatus']==self::HTTP_NOT_MODIFIED) {
             return true; 
@@ -270,5 +342,86 @@ class Dropbox extends WhipPlugin {
             }   //  switch http response code
         }
     }   //  function _fetch
+    
+    
+    /**
+     * _whipify_files function.
+     * 
+     * @access private
+     * @param mixed $files
+     * @return void
+     */
+    private function _whipify_files($files, $only_images=false) {
+        $dropboxfiles = array();
+        foreach($files as $file) {
+            if ($only_images) {
+            //  Only process images
+                if (substr($file->mime_type, 0, 6) !== 'image/') {
+                //  Not an image
+                    continue;
+                }
+            }
+            $dropboxfiles[] = $this->_whipify_file($file);
+        }   //  each file
+        return $dropboxfiles;
+    }   //  function _whipify_files
+    
+    /**
+     * _whipify_file function.
+     * 
+     * @access private
+     * @param mixed $file
+     * @return void
+     */
+    private function _whipify_file($file) {
+        $dropboxfile = new DropboxFile();
+        $dropboxfile->revision      = (int)$file->revision;
+        $dropboxfile->has_thumb     = (bool)(1 == $file->thumb_exists);
+        $dropboxfile->size          = (int)$file->bytes;
+        $dropboxfile->modified      = strtotime($file->modified);
+        $dropboxfile->is_dir        = (bool)(1 == $file->is_dir);
+        $dropboxfile->human_size    = $file->size;
+        $dropboxfile->icon          = $file->icon;
+        if (isset($file->mime_type)) {
+            $dropboxfile->mime_type     = $file->mime_type;
+            if (substr($file->mime_type, 0, 6) == 'image/') {
+                $dropboxfile->is_image = true;
+            }
+        }
+        $last_slash = strrpos($file->path, '/');
+        if (false === $last_slash) {
+        //  No filename
+            $dropboxfile->path      = $file->path;
+            $dropboxfile->filename  = '';
+        }
+        else {
+        //  Filename
+            $dropboxfile->path      = substr($file->path, 0, $last_slash);
+            $dropboxfile->filename  = substr($file->path, $last_slash + 1);
+        }
+        return $dropboxfile;
+    }   //  function _whipify_file
+    
+    
+    /**
+     * _dropbox_path function.
+     * Dropbox doesn't like spaces in paths and filenames,
+     * but also does not like urlencoded slashes.
+     * 
+     * @access private
+     * @param mixed $path
+     * @return void
+     */
+    private function _dropbox_path($path) {
+        $path = trim($path);
+        $path = rawurlencode($path);
+        $path = str_replace('%2F', '/', $path);
+        $path = ltrim($path, '/');
+        return $path;
+    }
+    
+    
+    
+    
     
 }   //  class Dropbox

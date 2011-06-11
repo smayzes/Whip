@@ -1,0 +1,45 @@
+<?php    
+/**
+ * Whip template site
+ * 
+ * index.php
+ *
+ */
+
+//  Configuration
+    require_once('config.php');
+
+//  Initialise Whip
+    require_once($config['Whip']['path'].'whip.php');
+    $w = Whip::get_instance($config);
+    $config['Site']['path'] = Whip::real_path($config['Site']['path']);
+
+//  Load database models
+    require_once($config['Site']['path'].'models.php');
+    
+//  Initialize context
+//  These variables are available inside the templates.
+    $context = array(
+        'dev'   => $config['is_dev'],
+        'css'   => array(
+            '/css/whip.css',
+        ),
+        'js'    => array(
+            '/js/whip.js',
+            'http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js',
+        ),
+    );
+    
+//  Parse request
+    try {
+    //  Your website routing / code here
+        $template = 'index.tpl';
+    }
+    catch (Exception $e) {
+    //  Handle exception
+        echo '<pre>'.print_r($e, true).'</pre>';
+    }
+    
+//  Render template
+    Whip::Template()->render($template, $context);
+    
