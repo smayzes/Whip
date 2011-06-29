@@ -165,6 +165,8 @@ class Whip {
     //  Check if plugin is already loaded
         if (class_exists($name)) {
             /*
+            //@TODO:    throw an exception if a non-WhipPlugin class
+            //          with this name already exists.
             if ($name instanceof WhipPlugin) {
                 return true;
             }
