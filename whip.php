@@ -291,3 +291,13 @@ class Whip {
     
         
 }   //  class Whip
+
+
+/**
+ * Auto-initialize Whip
+ * if a $config configuration array is present.
+ * 
+ */
+if (isset($config) && is_array($config)) {
+    Whip::get_instance($config);
+}

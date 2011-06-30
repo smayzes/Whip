@@ -11,8 +11,6 @@
 
 //  Initialise Whip
     require_once($config['Whip']['path'].'whip.php');
-    $w = Whip::get_instance($config);
-    $config['Site']['path'] = Whip::real_path($config['Site']['path']);
 
 //  Load database models
     require_once($config['Site']['path'].'models.php');
@@ -32,14 +30,25 @@
     
 //  Parse request
     try {
-    //  Your website routing / code here
+    //  --------
+    //  Your website routing / code goes here.
+    //
+    //  Variables added to the $context array
+    //  will be available inside the template.
+    //
+    //  --------
         $template = 'index.tpl';
+        
     }
     catch (Exception $e) {
-    //  Handle exception
+    //  --------
+    //  Handle exception here.
+    //  --------
         echo '<pre>'.print_r($e, true).'</pre>';
+        
     }
     
 //  Render template
     Whip::Template()->render($template, $context);
+    
     

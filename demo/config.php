@@ -13,6 +13,7 @@
     $config = array();
     
 //  Are we working on dev?
+//  Feel free to use your own criteria to determine is_dev.
     if (preg_match('/\/dev$/', __DIR__)) {
         $config['is_dev'] = true;
     }
@@ -27,7 +28,7 @@
     
 //  Site
     $config['Site'] = array(
-        'path'          => realpath(__DIR__),
+        'path'          => realpath(__DIR__).'/',
     );
     
 //  Db plugin
