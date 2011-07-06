@@ -160,7 +160,7 @@ class TemplateModifierDate extends TemplateModifier {
         //  x days
             return ceil($difference/self::DAY).' '.$i18n[$language]['days'].' '.$i18n[$language]['ago'];
         }
-        elseif ($difference < self::MONTH) {
+        elseif ($difference < self::MONTH*2) {
         //  x weeks
             return ceil($difference/self::WEEK).' '.$i18n[$language]['weeks'].' '.$i18n[$language]['ago'];
         }
