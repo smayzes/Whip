@@ -99,21 +99,19 @@ class Db extends WhipPlugin {
         return true;
     }   //  _connect
     
-    
-    
     /**
      * get_one function.
-     *
-     * Returns one model instance if the query yields one result.
+     * Returns exactly one model instance if the query yields one result.
      * 
      * @access public
      * @param mixed $model_name
      * @param mixed $query
+     * @param mixed array $params. (default: null)
      * @return void
      */
-    public function get_one($model_name, $query) {
+    public function get_one($model_name, $query, array $params=null) {
     //  Make sure the model exists
-        $results = $this->get_all($model_name, $query);
+        $results = $this->get_all($model_name, $query, $params);
         if (is_array($results)) {
             $num_results = count($results);
             if ($num_results==1) {
