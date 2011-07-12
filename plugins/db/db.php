@@ -139,7 +139,7 @@ class Db extends WhipPlugin {
      * @param mixed $query
      * @return int
      */
-    public function get_count($model_name, Query $query) {
+    public function get_count($model_name, Query $query=null) {
     //  Make sure the model exists
         try {
             Whip::model($model_name);
@@ -153,14 +153,18 @@ class Db extends WhipPlugin {
         //@TODO: Throw Exception!
             return false;
         }
-    //  Make sure we have been passed a query class.
-        if (!($query instanceof WhipPlugin) || !($query instanceof Query)) {
-            throw new WhipPluginException(E_PLUGIN_INVALID.': Query');
-            return false;
+    //  If the query is null, count ALL rows
+        if (null === $query) {
+            $query_string = 'SELECT COUNT(*) FROM '.$model_name::$_table;
+            $query_values = null;
         }
-    //  Prepare and execute the query.
-        $query_string = $query->build_count($model_name);
-        $query_values = $query->get_values();
+        else {
+        //  Prepare and execute the query.
+            $query_string = $query->build_count($model_name);
+            $query_values = $query->get_values();
+        
+        }
+        
     //  Prepare SQL statement
         $pdo_statement = $this->_link->prepare($query_string);
     //  Execute SQL statement
