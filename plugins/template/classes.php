@@ -45,29 +45,6 @@ class TemplateBlockRoot extends TemplateBlock {
 
 
 /**
- * TODO: Replace with just a simple string?
- *
- * TemplateBlockContent class.
- * 
- * @extends TemplateBlock
- */
-/*
-class TemplateBlockContent extends TemplateBlock {
-
-    public function __construct($content) {
-    //  Set content
-        $this->content      = $content;
-    }   //  function __construct
-    
-    public function render() {
-        echo $this->content;
-    }   //  function render
-    
-}   //  Content
-*/
-
-
-/**
  * TemplateBlockFunction class.
  * 
  * @extends TemplateBlock

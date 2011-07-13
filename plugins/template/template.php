@@ -178,7 +178,9 @@ class Template extends WhipPlugin {
     private function _render_tree(&$node) {
         if (is_string($node)) {
         //  Plain text / html
-            echo $node;
+        //  Trimm off the fat before outputting
+            //$node = preg_replace('/[ ]{2,16}/s', '', $node);  //  a bit overkill
+            echo trim($node, "\r\n\t");
             return true;
         }
         
