@@ -219,15 +219,15 @@ class Amazon extends SingletonWhipPlugin {
         );
         $params['Service']          = 'AWSECommerceService';
         $params['AWSAccessKeyId']   = $this->_config['public_key'];
-        $params['Timestamp']        = gmdate("Y-m-d\TH:i:s\Z");
+        $params['Timestamp']        = gmdate('Y-m-d\TH:i:s\Z');
         $params['Version']          = '2009-03-31';
     //  Sort parameters by key.
     //  This is a necessary step in Amazon's request signing process.
         ksort($params);
     //  Urlencode parameters
-        $canonicalized_query = array();
+        $query = array();
         foreach ($params as $param=>$value) {
-            $canonicalized_query[] =
+            $query[] =
                 $this->_encode($param).
                 '='.
                 $this->_encode($value);
@@ -237,7 +237,7 @@ class Amazon extends SingletonWhipPlugin {
             $http['method'].self::NEWLINE.
             $http['host'].self::NEWLINE.
             $http['uri'].self::NEWLINE.
-            implode('&', $canonicalized_query);
+            implode('&', $query);
     //  Sign and encode
         $signature = $this->_encode(
             base64_encode(
@@ -249,28 +249,28 @@ class Amazon extends SingletonWhipPlugin {
         curl_setopt(
             $ch,
             CURLOPT_URL,
-            'http://'.$http['host'].$http['uri'].'?'.implode('&', $canonicalized_query).'&Signature='.$signature
+            'http://'.$http['host'].$http['uri'].'?'.implode('&', $query).'&Signature='.$signature
         );
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_TIMEOUT, 15);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        $xml_response = curl_exec($ch);
+        $response = curl_exec($ch);
     //  Verify response
-        if (false === $xml_response) {
+        if (false === $response) {
             throw new WhipPluginException('Could not retrieve results from Amazon');
         }
     //  Parse and verify Amazon XML
-        $parsed_xml = @simplexml_load_string($xml_response);
-        if (!isset($parsed_xml->Items->Item->ItemAttributes->Title)) {
+        $xml = @simplexml_load_string($response);
+        if (!isset($xml->Items->Item->ItemAttributes->Title)) {
         //  XML is invalid.
         //  Check for error.
-            if (isset($parsed_xml->Error->Message)) {
-                throw new WhipPluginException($parsed_xml->Error->Message);
+            if (isset($xml->Error->Message)) {
+                throw new WhipPluginException($xml->Error->Message);
             }
             throw new WhipPluginException('Invalid XML received from Amazon');
         }
     //  Return valid XML object
-        return $parsed_xml;
+        return $xml;
     }   //  function _request
     
     /**
