@@ -172,6 +172,17 @@ class Amazon extends SingletonWhipPlugin {
     }   //  function search
     
     
+    /**
+     * lookup function.
+     * Look up a product by its ASIN, EAN, ISBN, SKU or UPC code.
+     * 
+     * @access public
+     * @param string $item_id
+     * @param string $category. (default: 'All')
+     * @param string $method. (default: self::LOOKUP_METHOD_ISBN)
+     * @param string $response_group. (default: 'Medium')
+     * @return Object xml
+     */
     public function lookup($item_id, $category='All', $method=self::LOOKUP_METHOD_ISBN, $response_group='Medium') {
     //  Check category
         if (!in_array($category, self::$_categories, true)) {
