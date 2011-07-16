@@ -1,3 +1,0 @@
-eval `ssh-agent`
-ssh-add ~/.ssh/github_id_rsa
-git pull origin master
