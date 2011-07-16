@@ -239,6 +239,20 @@ class Db extends WhipPlugin {
     
     
     /**
+     * get_fields function.
+     * Alias for get_raw
+     * 
+     * @access public
+     * @param mixed $query
+     * @param mixed array $params. (default: null)
+     * @return void
+     */
+    public function get_fields($query, array $params=null) {
+        return $this->get_raw($query, $params);
+    }   //  function get_fields
+    
+    
+    /**
      * get_raw function.
      *
      * Returns raw query result.
