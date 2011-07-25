@@ -1,4 +1,4 @@
-<?php
+TEST<?php
 
 /**
  * Durabledns plugin.

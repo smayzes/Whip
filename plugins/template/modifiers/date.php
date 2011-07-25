@@ -16,10 +16,6 @@ class TemplateModifierDate extends TemplateModifier {
     const YEAR      = 31536000; //  365 days
     
     
-    
-
-    
-    
     /**
      * run function.
      * 
@@ -66,6 +62,8 @@ class TemplateModifierDate extends TemplateModifier {
         static $i18n = array(
             'en'    => array(
                 'in the future' => 'in the future',
+                'now'           => 'now',
+                'never'         => 'never',
                 'yesterday'     => 'yesterday',
                 'a'             => 'a',
                 'an'            => 'an',
@@ -88,6 +86,8 @@ class TemplateModifierDate extends TemplateModifier {
             ),
             'nl'    => array(
                 'in the future' => 'in de toekomst',
+                'now'           => 'nu',
+                'never'         => 'nooit',
                 'yesterday'     => 'gisteren',
                 'a'             => 'een',
                 'an'            => 'een',
@@ -110,15 +110,14 @@ class TemplateModifierDate extends TemplateModifier {
             ),
             
         );
-    
-    
+        
     //  Format date if necessary
         if (!is_numeric($value)) {
             $value = strtotime($value);
         }
         if (false === $value) {
-            throw new WhipPluginException('Unexpected date format: '.$value);
-            return false;
+        //  0000-00-00 00:00:00 is Never
+            return $i18n[$language]['never'];
         }
     //  Calculate the difference
         $time_now = time();
@@ -126,6 +125,10 @@ class TemplateModifierDate extends TemplateModifier {
         if ($difference < 0) {
         //  Future
             return $i18n[$language]['in the future'];
+        }
+        elseif ($difference < 10*self::SECOND) {
+        //  Now
+            return $i18n[$language]['now'];
         }
         elseif ($difference < self::MINUTE) {
         //  x seconds
@@ -176,9 +179,5 @@ class TemplateModifierDate extends TemplateModifier {
             return ceil($difference/self::YEAR).' '.$i18n[$language]['years'].' '.$i18n[$language]['ago'];
         }
     }   //  function friendly
-
-    
     
 }   //  Date
-
-
