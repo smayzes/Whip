@@ -286,8 +286,8 @@ class Amazon extends SingletonWhipPlugin {
             if (isset($xml->Error->Message)) {
                 throw new WhipPluginException($xml->Error->Message);
             }
-            header('Content-type', 'text/xml');
-            echo print_r($response, true);
+            //header('Content-type', 'text/xml');
+            //echo print_r($response, true);
             throw new WhipPluginException('Invalid XML received from Amazon');
         }
     //  Return valid XML object
