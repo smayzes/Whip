@@ -144,7 +144,7 @@ class Amazon extends SingletonWhipPlugin {
      * @param string $response_group. (default: 'Medium')
      * @return Object xml
      */
-    public function search($keywords, $category='All', $method=self::SEARCH_METHOD_KEYWORDS, $response_group='Medium') {
+    public function search($keywords, $page=1, $category='All', $method=self::SEARCH_METHOD_KEYWORDS, $response_group='Medium') {
     //  Check category
         if (!in_array($category, self::$_categories, true)) {
             throw new WhipPluginException('Invalid category specified');
@@ -166,6 +166,7 @@ class Amazon extends SingletonWhipPlugin {
             $method         => $keywords,
             'SearchIndex'   => $category,
             'ResponseGroup' => $response_group,
+            'ItemPage'      => (int)$page,
         );
     //  Query the Amazon API
         return $this->_request($parameters);
@@ -232,6 +233,13 @@ class Amazon extends SingletonWhipPlugin {
         $params['AWSAccessKeyId']   = $this->_config['public_key'];
         $params['Timestamp']        = gmdate('Y-m-d\TH:i:s\Z');
         $params['Version']          = '2009-03-31';
+        $this->_config['region']	= 'com';
+        if (isset($this->_config['AssociateTag'])) {
+        	$params['AssociateTag']		= $this->_config['AssociateTag'];
+        }
+        else {
+        	$params['AssociateTag']		= 'subrealitysof-20';
+        }
     //  Sort parameters by key.
     //  This is a necessary step in Amazon's request signing process.
         ksort($params);
@@ -278,6 +286,8 @@ class Amazon extends SingletonWhipPlugin {
             if (isset($xml->Error->Message)) {
                 throw new WhipPluginException($xml->Error->Message);
             }
+            header('Content-type', 'text/xml');
+            echo print_r($response, true);
             throw new WhipPluginException('Invalid XML received from Amazon');
         }
     //  Return valid XML object
