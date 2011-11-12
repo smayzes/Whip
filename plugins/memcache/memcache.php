@@ -151,6 +151,47 @@ class Memcache extends SingletonWhipPlugin {
 		}
 		return $memcache->set($key, $value, $expiration);
 	}	//	function set
+	
+	
+	/**
+	 * delete function.
+	 * 
+	 * @access public
+	 * @param string $key
+	 * @return void
+	 */
+	public function delete($key) {
+		$memcache = $this->_get_memcache_instance();
+		return $memcache->delete($key);
+	}	//	function delete
+	
+	
+	/**
+	 * increment function.
+	 * 
+	 * @access public
+	 * @param mixed $key
+	 * @param int $offset. (default: 1)
+	 * @return void
+	 */
+	public function increment($key, $offset=1) {
+		$memcache = $this->_get_memcache_instance();
+		return $memcache->increment($key, $offset);
+	}	//	function increment
+	
+	
+	/**
+	 * decrement function.
+	 * 
+	 * @access public
+	 * @param mixed $key
+	 * @param int $offset. (default: 1)
+	 * @return void
+	 */
+	public function decrement($key, $offset=1) {
+		$memcache = $this->_get_memcache_instance();
+		return $memcache->decrement($key, $offset);
+	}	//	function decrement
 	    
     
 }   //  class Memcache
