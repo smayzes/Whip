@@ -1,8 +1,12 @@
 <?php
 //  Require OAuth extension
-    if (!class_exists('OAuth')) {
-        throw new WhipPluginException('OAuth extension required.');
-    }
+	if (!class_exists('OAuth')) {
+		throw new WhipPluginException(
+			'The OAuth extension is required to run this plugin. '.
+			'Refer to http://www.php.net/manual/en/book.oauth.php for more information.'
+		);
+	}
+
     require_once(__DIR__.'/models.php');
     
 /**

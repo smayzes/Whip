@@ -1,5 +1,14 @@
 <?php
 
+//  Require SimpleXML extension
+	if (!function_exists('simplexml_load_string')) {
+		throw new WhipPluginException(
+			'The SimpleXML extension is required to run this plugin. '.
+			'Refer to http://www.php.net/manual/en/book.simplexml.php for more information.'
+		);
+	}
+
+
 /**
  * Amazon plugin.
  *
