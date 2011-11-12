@@ -10,9 +10,9 @@
  * Copyright (c) 2010 Menno van Ens (codefocus.ca) and Shawn Mayzes (mayzes.org)
  * Released under the GNU General Public License, Version 3 
  *
- * @extends WhipPlugin
+ * @extends SingletonWhipPlugin
  */
-class Markdown extends WhipPlugin {
+class Markdown extends SingletonWhipPlugin {
 
 	# Regex to match balanced [brackets].
 	# Needed to insert a maximum bracked depth while converting to PHP.
