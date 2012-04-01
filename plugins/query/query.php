@@ -390,7 +390,18 @@ class Query extends UncachedWhipPlugin {
             if ($field != $model::$_pk) {
             //  Don't insert the PK value
                 $fields[] = $this->_safe_name($field);
-                $this->_where_values[] = $model->$field;
+                
+			//	Kludge: true=1, false=0
+				$value = $model->$field;
+				if (true === $value) {
+					$this->_where_values[] = 1;
+				}
+				elseif(false === $value) {
+					$this->_where_values[] = 0;
+				}
+				else {
+					$this->_where_values[] = $value;
+				}
             }
         }
     //  Build SQL

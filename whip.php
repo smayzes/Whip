@@ -270,6 +270,38 @@ class Whip {
         return $v;
     }   //  function post
     
+    /**
+     * file function.
+     *
+     * Get a FILES variable
+     * 
+     * @access public
+     * @static
+     * @param mixed $n
+     * @param mixed $default. (default: null)
+     */
+    public static function file($n, $default=null, $regex=null) {
+        if (isset($_FILES[$n])) {
+            $v = $_FILES[$n];
+            if ($v['error']) {
+            	$v = $default;
+            }
+            if (!is_uploaded_file($v['tmp_name'])) {
+            	$v = $default;
+            }
+            if (null !== $regex) {
+            //  Check if it matches the regex
+                if (!preg_match('/'.$regex.'/', $v['name'])) {
+                    $v = $default;
+                }
+            }
+        }
+        else {
+            $v = $default;
+        }
+        return $v;
+    }   //  function file
+    
     
     /**
      * is_dev function.
@@ -282,11 +314,16 @@ class Whip {
      * @return void
      */
     public static function is_dev() {
-        return (bool)(
-            is_array(self::$_config) &&
-            isset(self::$_config['dev']) &&
-            true === self::$_config['dev']
-        );
+    	if (!is_array(self::$_config)) {
+    		return false;
+    	}
+    	if (isset(self::$_config['dev']) && self::$_config['dev']) {
+    		return true;
+    	}
+    	if (isset(self::$_config['is_dev']) && self::$_config['is_dev']) {
+    		return true;
+    	}
+    	return false;
     }   //  function is_dev
     
         

@@ -13,7 +13,7 @@
     require_once($config['Whip']['path'].'whip.php');
 
 //  Load database models
-    require_once($config['Site']['path'].'models.php');
+    //require_once($config['Site']['path'].'models.php');
     
 //  Initialize context
 //  These variables are available inside the templates.

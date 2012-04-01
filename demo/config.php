@@ -44,7 +44,7 @@
     
 //  Template plugin
     $config['Template'] = array(
-        'path'          => $config['Site']['path'].'/templates/',
+        'path'          => $config['Site']['path'].'templates/',
     );
     
     

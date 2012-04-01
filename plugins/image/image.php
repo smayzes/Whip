@@ -14,7 +14,7 @@
 define('IMAGE_RESIZE_FILL',         0x1001);
 define('IMAGE_RESIZE_FIT',          0x1002);
 
-class Image extends SingletonWhipPlugin {   //  uncached
+class Image extends WhipPlugin {   //  uncached
     
     private $img_filename   = '';
     private $img_original   = null;
@@ -74,6 +74,21 @@ class Image extends SingletonWhipPlugin {   //  uncached
         return false;
     }   //  load
     
+    
+/**
+*   Create from string
+*
+*/
+    public function create_from_string($data) {
+    //  Reset
+        $this->_reset();
+        $im = imagecreatefromstring($data);
+        if (false === $im) {
+        	return false;
+        }
+        $this->img_original = &$im;
+        return true;
+    }   //  create_from_string
     
 /**
 *   Create new blank image
