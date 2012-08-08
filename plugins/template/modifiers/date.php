@@ -36,17 +36,47 @@ class TemplateModifierDate extends TemplateModifier {
      * @param mixed $value
      * @param mixed $format
      */
-    public static function format($value, $format) {
+    public static function format($value, $format, $format2=null, $format3=null, $format4=null, $format5=null, $format6=null, $format7=null, $format8=null) {
     //  Format date if necessary
-        if (!is_numeric($value)) {
+        if (!is_numeric($value) && !($value instanceof DateTime)) {
             $value = strtotime($value);
         }
         if (false === $value) {
             throw new WhipPluginException('Unexpected date format: '.$value);
             return false;
         }
+        
+        $date_format = $format;
+        if (null !== $format2) {
+        	$date_format .= ' '.$format2;
+	        if (null !== $format3) {
+	        	$date_format .= ' '.$format3;
+		        if (null !== $format4) {
+		        	$date_format .= ' '.$format4;
+			        if (null !== $format5) {
+			        	$date_format .= ' '.$format5;
+				        if (null !== $format6) {
+				        	$date_format .= ' '.$format6;
+					        if (null !== $format7) {
+					        	$date_format .= ' '.$format7;
+						        if (null !== $format8) {
+						        	$date_format .= ' '.$format8;
+						        }
+					        }
+				        }
+			        }
+		        }
+	        }
+        }
     //  Return formatted date
-        return date($format, $value);
+    	if ($value instanceof DateTime) {
+    		$return = (string)$value->format($date_format);
+    		return $return;
+    	}
+    	else {
+	    	return date($date_format, $value);
+    	}
+        
     }   //  function format
     
     

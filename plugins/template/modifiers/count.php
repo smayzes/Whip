@@ -13,6 +13,14 @@ class TemplateModifierCount extends TemplateModifier {
 	   }
 	   return false;
 	}  //  function run
+	
+	
+	public static function minus1($value) {
+	   if (is_array($value)) {
+	       return count($value) - 1;
+	   }
+	   return false;
+	}  //  function run
     
     
 }   //  Count

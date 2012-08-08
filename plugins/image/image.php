@@ -138,7 +138,7 @@ class Image extends WhipPlugin {   //  uncached
         case IMAGE_RESIZE_FILL:
         #   Fill thumnail completely.
         #   Image may be cropped to fit.
-            $aspect             = min($aspect_x, $aspect_y);
+            $aspect             = max($aspect_x, $aspect_y);
             $aspect             = max($aspect, 1);
             $dim_dst['x']       = min($max_width, (int)($dim_src['x'] / $aspect));
             $point_src['x']     = (int)((($dim_src['x'] / $aspect) - $dim_dst['x']) / 2 * $aspect);
@@ -277,7 +277,7 @@ class Image extends WhipPlugin {   //  uncached
     
     
     
-    public function paste(&$image, $pct=33, $x=null, $y=null) {
+    public function paste(&$image, $pct=33, $x=null, $y=null, $alignright=false, $alignbottom=false) {
     #   Get working image
         $im                 = $this->_getworkingimage();
         $dim                = $this->_getworkingdimensions();
@@ -297,16 +297,16 @@ class Image extends WhipPlugin {   //  uncached
         
     #   Paste position
         $paste_pos          = $this->_point(0, 0);
-        if ($x!=null) {
-            if ($x>0) {
+        if ($x !== null) {
+            if ($x > 0 AND false == $alignright) {
                 $paste_pos['x']     = $x;
             }
             else {
                 $paste_pos['x']     = $dim['x'] - $dim_paste['x'] + $x;
             }
         }
-        if ($y!=null) {
-            if ($y>0) {
+        if ($y !== null) {
+            if ($y > 0 AND false == $alignbottom) {
                 $paste_pos['y']     = $y;
             }
             else {

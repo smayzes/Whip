@@ -26,6 +26,35 @@ abstract class WhipModel {
         return $class_name::$_pk;
     }
     
+    
+    /**
+     * __construct function.
+     * 
+     * @access public
+     * @param mixed $values (default: null)
+     * @return void
+     */
+    public function __construct($values = null) {
+	    if (null == $values) {
+		    return;
+	    }
+	    if (is_array($values)) {
+		//	Fill me from array
+			foreach($values as $key=>$value) {
+				$this->$key = $value;
+			}
+	    }
+	    if (is_object($values)) {
+		//	Fill me from object
+			$values = get_object_vars($values);
+			foreach($values as $key=>$value) {
+				$this->$key = $value;
+			}
+	    }
+    }	//	function __construct
+    
+    
+    
     /**
      * __set function.
      * 
@@ -195,7 +224,7 @@ abstract class WhipModel {
      * @access public
      */
     public function save() {
-        return Whip::Db()->save( $this );
+        return Whip::Db()->save($this);
     }   //  save
     
     

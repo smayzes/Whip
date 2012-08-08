@@ -63,7 +63,7 @@ class Twitter extends UncachedWhipPlugin  {
 	 *
 	 * @var	string
 	 */
-	private $oAuthToken = '';
+	private $oAuthToken;
 
 
 	/**
@@ -71,7 +71,7 @@ class Twitter extends UncachedWhipPlugin  {
 	 *
 	 * @var	string
 	 */
-	private $oAuthTokenSecret = '';
+	private $oAuthTokenSecret;
 
 
 	/**
@@ -399,9 +399,12 @@ class Twitter extends UncachedWhipPlugin  {
 
 		// calculate the base string
 		$base = $this->calculateBaseString(self::API_URL .'/'. $url, $method, $data);
-
+		
+		
 		// add sign into the parameters
 		$oauth['oauth_signature'] = $this->hmacsha1($this->getConsumerSecret() .'&' . $this->getOAuthTokenSecret(), $base);
+		
+		//echo '<pre>'.print_r($oauth, true).'</pre>';
 
 		$headers[] = $this->calculateHeader($oauth, self::API_URL .'/'. $url);
 		$headers[] = 'Expect:';
