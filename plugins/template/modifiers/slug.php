@@ -11,15 +11,12 @@ class TemplateModifierSlug extends TemplateModifier {
         if ( $limit > 0 ) {
             $value = substr($value, 0, $limit);
         }
-		$value = trim($value);
-        $value = strip_tags($value);
-        $value = self::_remove_accents($value);
-        $value = strtolower($value);
-        $value = preg_replace('/&.+?;/', '', $value); // kill entities
-        $value = preg_replace('/[^%a-z0-9 _-]/', '', $value);
-        $value = preg_replace('/\s+/', '-', $value);
-        $value = preg_replace('|-+|', '-', $value);
-
+        $value = trim($value);
+		$value = strtolower($value);
+		$value = self::_remove_accents($value);
+		$value = preg_replace('/[^a-z0-9\s]/', '', $value);
+		$value = preg_replace('/\s+/', '-', $value);
+		$value = preg_replace('|-+|', '-', $value);
         return $value;
     }
 

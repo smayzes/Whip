@@ -192,6 +192,18 @@ class Memcache extends SingletonWhipPlugin {
 		$memcache = $this->_get_memcache_instance();
 		return $memcache->decrement($key, $offset);
 	}	//	function decrement
+	
+	
+	/**
+	 * flush function.
+	 * 
+	 * @access public
+	 * @return void
+	 */
+	public function flush() {
+		$memcache = $this->_get_memcache_instance();
+		return $memcache->flush();
+	}	//	function flush
 	    
     
 }   //  class Memcache
