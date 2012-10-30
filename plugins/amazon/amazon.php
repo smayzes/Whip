@@ -240,7 +240,7 @@ class Amazon extends SingletonWhipPlugin {
         );
         $params['Service']          = 'AWSECommerceService';
         $params['AWSAccessKeyId']   = $this->_config['public_key'];
-        $params['Timestamp']        = gmdate('Y-m-d\TH:i:s\Z');
+        $params['Timestamp']        = gmdate('Y-m-d\TH:i:s\Z', strtotime('+1 hour'));
         $params['Version']          = '2009-03-31';
         $this->_config['region']	= 'com';
         if (isset($this->_config['AssociateTag'])) {

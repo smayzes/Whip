@@ -14,7 +14,7 @@
     
 //  Are we working on dev?
 //  Feel free to use your own criteria to determine is_dev.
-    if (preg_match('/\/dev$/', __DIR__)) {
+    if (preg_match('/\/dev|demo|test$/', __DIR__)) {
         $config['is_dev'] = true;
     }
     else {
@@ -23,7 +23,7 @@
 
 //  Whip
     $config['Whip'] = array(
-        'path'          => '/var/www/_codebase/production/Whip/',
+        'path'          => '/var/www/_codebase/menno/whip/',
     );
     
 //  Site
@@ -45,6 +45,18 @@
 //  Template plugin
     $config['Template'] = array(
         'path'          => $config['Site']['path'].'templates/',
+	//  Initialize a default context
+	//  These variables are available inside the templates.
+	    'context'		=> array(
+	        'dev'   => $config['is_dev'],
+	        'css'   => array(
+	            '/css/whip.css',
+	        ),
+	        'js'    => array(
+	            '//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js',
+	            '/js/whip.js',
+	        ),
+	    ),
     );
     
     
