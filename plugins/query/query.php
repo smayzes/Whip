@@ -387,7 +387,7 @@ class Query extends UncachedWhipPlugin {
     //  Make sure the model's field names are safe
         $fields = array();
         foreach($model::$_fields as $field) {
-            if ($field != $model::$_pk) {
+            if ($field != $model::$_pk or is_numeric($model->$field)) {
             //  Don't insert the PK value
                 $fields[] = $this->_safe_name($field);
                 
