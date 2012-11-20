@@ -438,7 +438,18 @@ class Query extends UncachedWhipPlugin {
             if ($field != $model::$_pk) {
             //  Don't update the PK
                 $sql_set[] = $this->_safe_name($field).'='.self::PDO_PLACEHOLDER;
-                $this->_where_values[] = $model->$field;
+                //$this->_where_values[] = $model->$field;
+			//	Kludge: true=1, false=0
+				$value = $model->$field;
+				if (true === $value) {
+					$this->_where_values[] = 1;
+				}
+				elseif(false === $value) {
+					$this->_where_values[] = 0;
+				}
+				else {
+					$this->_where_values[] = $value;
+				}
             }
         }
         $this->_where_values[] = $model->{$model::$_pk};

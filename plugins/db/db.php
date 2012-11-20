@@ -544,7 +544,7 @@ class Db extends WhipPlugin {
 	 * @access public
 	 * @param mixed WhipModel $model
 	 */
-	public function save(WhipModel &$model) {
+	public function save(WhipModel &$model, $force_insert=false) {
 	//	Make sure we are connected
 		if (!$this->_connect()) {
 		//@TODO: Throw Exception!
@@ -555,7 +555,7 @@ class Db extends WhipPlugin {
 	//	Prepare and execute the query.
 		$is_insert = false;
 		$pk = $model::get_pk();
-		if (is_numeric($model->$pk) && $model->$pk > 0) {
+		if (false == $force_insert and is_numeric($model->$pk) and $model->$pk > 0) {
 		//	Update
 			$query_string = $query->build_update($model);
 			if (false===$query_string) {

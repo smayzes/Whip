@@ -223,8 +223,8 @@ abstract class WhipModel {
      * 
      * @access public
      */
-    public function save() {
-        return Whip::Db()->save($this);
+    public function save($force_insert=false) {
+        return Whip::Db()->save($this, $force_insert);
     }   //  save
     
     
